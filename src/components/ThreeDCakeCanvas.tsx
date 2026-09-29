@@ -161,13 +161,14 @@ export const ThreeDCakeCanvas: React.FC<ThreeDCakeCanvasProps> = (props) => {
 
     const W = container.clientWidth || 640;
     const H = container.clientHeight || 420;
+    const isMobile = W < 520;
 
     // Scene
     const scene = new THREE.Scene();
 
-    // Camera
-    const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 100);
-    camera.position.set(0, 1.4, 5.0);
+    // Camera with adaptive FOV for mobile
+    const camera = new THREE.PerspectiveCamera(isMobile ? 44 : 38, W / H, 0.1, 100);
+    camera.position.set(0, 1.4, isMobile ? 5.4 : 5.0);
     cameraRef.current = camera;
 
     // Renderer
@@ -634,6 +635,8 @@ export const ThreeDCakeCanvas: React.FC<ThreeDCakeCanvasProps> = (props) => {
     const onResize = () => {
       if (!container || !renderer || !cameraRef.current) return;
       const w = container.clientWidth || 640, h = container.clientHeight || 420;
+      const mobile = w < 520;
+      cameraRef.current.fov = mobile ? 44 : 38;
       cameraRef.current.aspect = w / h;
       cameraRef.current.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -649,22 +652,23 @@ export const ThreeDCakeCanvas: React.FC<ThreeDCakeCanvasProps> = (props) => {
 
   // ── CAMERA PRESETS ───────────────────────────────────────────
   useEffect(() => {
+    const isMobile = (containerRef.current?.clientWidth || 640) < 520;
     if (cameraPreset === 'orbit') {
       setIsAutoOrbit(true); isAutoOrbitRef.current = true;
       targetRotationRef.current = { x: 0.3, y: -0.3 };
-      targetCameraPosRef.current.set(0, 1.4, 5.0);
+      targetCameraPosRef.current.set(0, 1.4, isMobile ? 5.4 : 5.0);
     } else if (cameraPreset === 'front') {
       setIsAutoOrbit(false); isAutoOrbitRef.current = false;
       targetRotationRef.current = { x: 0.08, y: 0 };
-      targetCameraPosRef.current.set(0, 0.9, 4.6);
+      targetCameraPosRef.current.set(0, 0.9, isMobile ? 4.9 : 4.6);
     } else if (cameraPreset === 'close') {
       setIsAutoOrbit(false); isAutoOrbitRef.current = false;
       targetRotationRef.current = { x: 0.25, y: 0.22 };
-      targetCameraPosRef.current.set(0, 1.0, 3.8);
+      targetCameraPosRef.current.set(0, 1.0, isMobile ? 4.1 : 3.8);
     } else if (cameraPreset === 'top') {
       setIsAutoOrbit(false); isAutoOrbitRef.current = false;
       targetRotationRef.current = { x: 0.68, y: -0.1 };
-      targetCameraPosRef.current.set(0, 2.5, 4.0);
+      targetCameraPosRef.current.set(0, 2.5, isMobile ? 4.3 : 4.0);
     }
   }, [cameraPreset]);
 
@@ -786,7 +790,7 @@ export const ThreeDCakeCanvas: React.FC<ThreeDCakeCanvasProps> = (props) => {
   };
 
   return (
-    <div className="relative w-full h-[380px] sm:h-[430px] select-none overflow-hidden rounded-3xl border border-[#ffdab9]/30 shadow-2xl bg-[#0f0115]">
+    <div className="relative w-full h-[270px] sm:h-[350px] md:h-[410px] select-none overflow-hidden rounded-2xl sm:rounded-3xl border border-[#ffdab9]/30 shadow-2xl bg-[#0f0115]">
       <div
         ref={containerRef}
         onPointerDown={onPointerDown}
@@ -798,16 +802,16 @@ export const ThreeDCakeCanvas: React.FC<ThreeDCakeCanvasProps> = (props) => {
       />
 
       {/* HUD Overlay */}
-      <div className="absolute bottom-3 inset-x-4 flex items-center justify-between pointer-events-none">
+      <div className="absolute bottom-2.5 inset-x-3 sm:inset-x-4 flex items-center justify-between pointer-events-none">
         <button
           type="button"
           onClick={toggleOrbit}
-          className="pointer-events-auto px-3.5 py-1.5 rounded-full bg-black/70 hover:bg-black/90 text-[#ffdab9] border border-[#ffdab9]/40 text-[11px] font-serif-display font-semibold transition-all cursor-pointer backdrop-blur-md shadow-lg flex items-center gap-1.5 active:scale-95"
+          className="pointer-events-auto px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-black/75 hover:bg-black/90 text-[#ffdab9] border border-[#ffdab9]/40 text-[10px] sm:text-[11px] font-serif-display font-semibold transition-all cursor-pointer backdrop-blur-md shadow-lg flex items-center gap-1.5 active:scale-95 min-h-[32px]"
         >
           {isAutoOrbit ? '⏸️ Pause Orbit' : '▶️ Auto Orbit'}
         </button>
-        <span className="hidden sm:inline text-[11px] text-[#f7e7ce]/85 font-serif-display bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
-          {candlesLit ? '🕯️ Tap candles to blow · Drag to rotate' : '🔄 Drag to inspect 360°'}
+        <span className="text-[10px] sm:text-[11px] text-[#f7e7ce]/90 font-serif-display bg-black/60 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-md">
+          {candlesLit ? '🕯️ Tap to blow' : '🔄 Drag 360°'}
         </span>
       </div>
     </div>
