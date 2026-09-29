@@ -18,11 +18,16 @@
     line-height: 1.65;
     font-size: 16px; /* Prevents iOS auto-zoom on inputs */
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Safe area padding for mobile docks */
+  /* Safe area padding for mobile docks and notch devices */
   .pb-safe {
-    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));
+  }
+
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top, 1rem));
   }
 
   /* Global scrollbar hide — clean modal/page experience */
@@ -33,6 +38,11 @@
 
   *::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Mobile touch target minimum size assurance */
+  button, a {
+    touch-action: manipulation;
   }
 }
 
