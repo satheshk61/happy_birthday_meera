@@ -69,7 +69,7 @@ export default function App() {
         }`}
       >
         {/* Top Minimal Bar adhering to 3-zone contract */}
-        <header className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-6 flex items-center justify-between border-b border-white/10">
+        <header className="w-full max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-5 flex items-center justify-between border-b border-white/10 gap-2">
           {/* Zone 1: Single wordmark element */}
           <button
             type="button"
@@ -77,9 +77,9 @@ export default function App() {
               sound.playNavClick();
               setActiveSection('home');
             }}
-            className="text-left cursor-pointer group"
+            className="text-left cursor-pointer group shrink min-w-0"
           >
-            <span className="font-script text-2xl sm:text-3xl gold-foil-text font-bold tracking-tight">
+            <span className="font-script text-xl sm:text-2xl md:text-3xl gold-foil-text font-bold tracking-tight block truncate">
               Happy Birthday {config.name}
             </span>
           </button>
@@ -161,7 +161,7 @@ export default function App() {
           </nav>
 
           {/* Zone 3: Primary Action - Cut Birthday Cake */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -169,16 +169,16 @@ export default function App() {
                 setIsSurpriseOpen(true);
               }}
               title="Cut Birthday Cake & Experience 3D Ceremony"
-              className="min-h-[40px] px-4 py-1.5 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] border border-[#ffdab9]/50 text-[#fffdf9] text-xs font-serif-display font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#b76e79]/30 active:scale-95 animate-pulse-soft"
+              className="min-h-[38px] px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] border border-[#ffdab9]/50 text-[#fffdf9] text-xs font-serif-display font-semibold flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer shadow-lg shadow-[#b76e79]/30 active:scale-95 animate-pulse-soft"
             >
-              <Cake className="w-4 h-4 text-[#ffdab9]" />
-              <span className="tracking-wide">Cut Cake 🎂</span>
+              <Cake className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ffdab9] shrink-0" />
+              <span className="tracking-wide text-xs">Cut Cake 🎂</span>
             </button>
           </div>
         </header>
 
         {/* Content Section Container */}
-        <main className="flex-1 w-full max-w-6xl mx-auto px-4 pb-28 md:pb-32">
+        <main className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 pb-28 md:pb-32">
           {activeSection === 'home' && (
             <div className="animate-fade-in">
               <HeroSection
