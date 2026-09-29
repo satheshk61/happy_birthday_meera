@@ -1,8 +1,8 @@
 import React from 'react';
-import { Sparkles, Image as ImageIcon, Disc3, Video, Mail, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, Camera, Gamepad2, Disc3, Video, Mail, Volume2, VolumeX } from 'lucide-react';
 import { sound } from '../utils/audio';
 
-export type NavSection = 'home' | 'memories' | 'soundtrack' | 'video' | 'letter';
+export type NavSection = 'home' | 'memories' | 'games' | 'soundtrack' | 'video' | 'letter';
 
 interface NavigationDockProps {
   activeSection: NavSection;
@@ -23,10 +23,11 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
 }) => {
   const navItems: { id: NavSection; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'home', label: 'Home', icon: Sparkles },
-    { id: 'memories', label: 'Memories', icon: ImageIcon },
-    { id: 'soundtrack', label: 'Soundtrack', icon: Disc3 },
-    { id: 'video', label: 'Video', icon: Video },
+    { id: 'memories', label: 'Photos', icon: Camera },
+    { id: 'games', label: 'Games', icon: Gamepad2 },
     { id: 'letter', label: 'Letter', icon: Mail },
+    { id: 'soundtrack', label: 'Music', icon: Disc3 },
+    { id: 'video', label: 'Video', icon: Video },
   ];
 
   const handleNavClick = (id: NavSection) => {
@@ -39,7 +40,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
       aria-label="Birthday experience navigation"
       className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-safe px-3 pointer-events-none"
     >
-      <div className="pointer-events-auto mb-3 md:mb-6 max-w-md w-full glass-dock rounded-2xl md:rounded-full px-2 py-1.5 flex items-center justify-between shadow-2xl transition-all">
+      <div className="pointer-events-auto mb-3 md:mb-6 max-w-lg w-full glass-dock rounded-2xl md:rounded-full px-2 py-1.5 flex items-center justify-between shadow-2xl transition-all border border-[#f7e7ce]/25">
         {/* Navigation Items */}
         <div className="flex items-center justify-around flex-1">
           {navItems.map((item) => {
@@ -53,7 +54,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
                 className={`relative min-h-[44px] min-w-[44px] flex flex-col items-center justify-center rounded-xl px-2 py-1 transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'text-[#fffdf9]'
-                    : 'text-[#e6e6fa]/60 hover:text-[#f7e7ce] hover:bg-white/5'
+                    : 'text-[#f7e7ce]/85 hover:text-[#fffdf9] hover:bg-white/10'
                 }`}
                 aria-current={isActive ? 'page' : undefined}
               >
