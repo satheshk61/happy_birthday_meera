@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Sparkles } from 'lucide-react';
+import { Cake, Sparkles } from 'lucide-react';
 import { birthdayConfig as initialConfig, BirthdayConfig } from './birthdayConfig';
 import { DreamyBackground } from './components/DreamyBackground';
 import { DigitalEnvelope } from './components/DigitalEnvelope';
@@ -14,8 +14,8 @@ import { MemoriesSection } from './components/MemoriesSection';
 import { MusicSection } from './components/MusicSection';
 import { VideoSection } from './components/VideoSection';
 import { LetterSection } from './components/LetterSection';
+import { GamesSection } from './components/GamesSection';
 import { SurpriseModal } from './components/SurpriseModal';
-import { ConfigModal } from './components/ConfigModal';
 import { sound } from './utils/audio';
 
 export default function App() {
@@ -23,7 +23,6 @@ export default function App() {
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<NavSection>('home');
   const [isSurpriseOpen, setIsSurpriseOpen] = useState(false);
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
 
@@ -70,7 +69,7 @@ export default function App() {
         }`}
       >
         {/* Top Minimal Bar adhering to 3-zone contract */}
-        <header className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-6 flex items-center justify-between border-b border-white/5">
+        <header className="w-full max-w-6xl mx-auto px-4 py-4 sm:py-6 flex items-center justify-between border-b border-white/10">
           {/* Zone 1: Single wordmark element */}
           <button
             type="button"
@@ -85,16 +84,16 @@ export default function App() {
             </span>
           </button>
 
-          {/* Zone 2: Clean desktop text navigation links */}
-          <nav className="hidden md:flex items-center gap-7 text-xs font-serif-display text-[#e6e6fa]/75">
+          {/* Zone 2: Clean desktop text navigation links with high readability */}
+          <nav className="hidden md:flex items-center gap-7 text-xs font-serif-display font-medium tracking-wider uppercase">
             <button
               type="button"
               onClick={() => {
                 sound.playNavClick();
                 setActiveSection('home');
               }}
-              className={`hover:text-[#ffdab9] transition-colors cursor-pointer tracking-wider uppercase ${
-                activeSection === 'home' ? 'text-[#ffdab9] font-semibold border-b border-[#ffdab9]' : ''
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'home' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
               }`}
             >
               Home
@@ -105,11 +104,35 @@ export default function App() {
                 sound.playNavClick();
                 setActiveSection('memories');
               }}
-              className={`hover:text-[#ffdab9] transition-colors cursor-pointer tracking-wider uppercase ${
-                activeSection === 'memories' ? 'text-[#ffdab9] font-semibold border-b border-[#ffdab9]' : ''
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'memories' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
               }`}
             >
-              Memories
+              Best Photos
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sound.playNavClick();
+                setActiveSection('games');
+              }}
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'games' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
+              }`}
+            >
+              Games
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sound.playNavClick();
+                setActiveSection('letter');
+              }}
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'letter' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
+              }`}
+            >
+              Letter & Timeline
             </button>
             <button
               type="button"
@@ -117,8 +140,8 @@ export default function App() {
                 sound.playNavClick();
                 setActiveSection('soundtrack');
               }}
-              className={`hover:text-[#ffdab9] transition-colors cursor-pointer tracking-wider uppercase ${
-                activeSection === 'soundtrack' ? 'text-[#ffdab9] font-semibold border-b border-[#ffdab9]' : ''
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'soundtrack' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
               }`}
             >
               Soundtrack
@@ -129,39 +152,27 @@ export default function App() {
                 sound.playNavClick();
                 setActiveSection('video');
               }}
-              className={`hover:text-[#ffdab9] transition-colors cursor-pointer tracking-wider uppercase ${
-                activeSection === 'video' ? 'text-[#ffdab9] font-semibold border-b border-[#ffdab9]' : ''
+              className={`hover:text-[#ffdab9] transition-colors cursor-pointer ${
+                activeSection === 'video' ? 'text-[#ffdab9] font-bold border-b border-[#ffdab9] pb-0.5' : 'text-[#f7e7ce]'
               }`}
             >
               Video
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                sound.playNavClick();
-                setActiveSection('letter');
-              }}
-              className={`hover:text-[#ffdab9] transition-colors cursor-pointer tracking-wider uppercase ${
-                activeSection === 'letter' ? 'text-[#ffdab9] font-semibold border-b border-[#ffdab9]' : ''
-              }`}
-            >
-              Letter
-            </button>
           </nav>
 
-          {/* Zone 3: Primary Action */}
+          {/* Zone 3: Primary Action - Cut Birthday Cake */}
           <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => {
                 sound.playNavClick();
-                setIsConfigOpen(true);
+                setIsSurpriseOpen(true);
               }}
-              title="Personalize details"
-              className="min-h-[38px] px-3.5 rounded-full bg-white/5 hover:bg-white/10 border border-[#f7e7ce]/25 text-[#f7e7ce] text-xs font-serif-display font-medium flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Cut Birthday Cake & Experience 3D Ceremony"
+              className="min-h-[40px] px-4 py-1.5 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] border border-[#ffdab9]/50 text-[#fffdf9] text-xs font-serif-display font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#b76e79]/30 active:scale-95 animate-pulse-soft"
             >
-              <Settings className="w-3.5 h-3.5 text-[#ffdab9]" />
-              <span className="hidden sm:inline">Personalize</span>
+              <Cake className="w-4 h-4 text-[#ffdab9]" />
+              <span className="tracking-wide">Cut Cake 🎂</span>
             </button>
           </div>
         </header>
@@ -174,6 +185,7 @@ export default function App() {
                 config={config}
                 onNavigateToMemories={() => setActiveSection('memories')}
                 onNavigateToLetter={() => setActiveSection('letter')}
+                onNavigateToGames={() => setActiveSection('games')}
                 onOpenSurprise={() => setIsSurpriseOpen(true)}
               />
             </div>
@@ -184,6 +196,17 @@ export default function App() {
               <MemoriesSection
                 memories={config.memories}
                 timeline={config.timeline}
+                onNavigateToGames={() => setActiveSection('games')}
+              />
+            </div>
+          )}
+
+          {activeSection === 'games' && (
+            <div className="animate-fade-in">
+              <GamesSection
+                config={config}
+                onOpenSurprise={() => setIsSurpriseOpen(true)}
+                onNavigateToLetter={() => setActiveSection('letter')}
               />
             </div>
           )}
@@ -231,14 +254,8 @@ export default function App() {
         isOpen={isSurpriseOpen}
         onClose={() => setIsSurpriseOpen(false)}
         config={config}
-      />
-
-      {/* Personalization Studio Modal */}
-      <ConfigModal
-        isOpen={isConfigOpen}
-        onClose={() => setIsConfigOpen(false)}
-        config={config}
-        onSaveConfig={(updated) => setConfig(updated)}
+        onOpenGamesTab={() => setActiveSection('games')}
+        onOpenLetterTab={() => setActiveSection('letter')}
       />
     </div>
   );
