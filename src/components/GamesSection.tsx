@@ -1,5 +1,35 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, Trophy, RotateCcw, PartyPopper, Heart, Gift, Music, Camera, Mail, Cake, Star, Wind, Volume2, Award, Zap, Compass, CheckCircle2, Stethoscope, Phone, Shield, ChevronRight } from 'lucide-react';
+import { 
+  Sparkles, 
+  Trophy, 
+  RotateCcw, 
+  PartyPopper, 
+  Heart, 
+  Gift, 
+  Music, 
+  Camera, 
+  Mail, 
+  Cake, 
+  Star, 
+  Wind, 
+  Volume2, 
+  Award, 
+  Zap, 
+  Compass, 
+  CheckCircle2, 
+  Stethoscope, 
+  Phone, 
+  Shield, 
+  ChevronRight, 
+  ChevronLeft, 
+  X, 
+  Flame, 
+  Play, 
+  Pause, 
+  Crown,
+  ArrowLeft,
+  ArrowRight
+} from 'lucide-react';
 import { BirthdayConfig } from '../birthdayConfig';
 import { sound } from '../utils/audio';
 import { triggerSurpriseConfetti, triggerTapSparkle } from '../utils/confetti';
@@ -11,6 +41,17 @@ interface GamesSectionProps {
 }
 
 type ActiveGame = 'balloons' | 'memory' | 'catcher';
+
+// ==========================================
+// HAPTIC FEEDBACK HELPER
+// ==========================================
+const triggerHaptic = (pattern: number | number[] = 20) => {
+  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+    try {
+      navigator.vibrate(pattern);
+    } catch {}
+  }
+};
 
 // ==========================================
 // GAME 1: BALLOON POP DATA & CONSTANTS
@@ -156,88 +197,161 @@ export const MEMORY_PAIR_DEFINITIONS: MemoryPairDefinition[] = [
     icon: Stethoscope,
     color: 'text-emerald-300',
     storyQuote: 'I swear that your hardwork and dedication will take you to great heights in your career and life. Keep shining bright and never forget that you are deeply loved!',
-    reflection: 'Boundless pride in your medical journey, healing touch, and future.',
+    reflection: 'Watching you dedicate your brilliance and compasssion to healing lives.',
   },
   {
-    pairKey: 'sacred-promise',
-    name: 'A Call Away Forever',
-    phase: 'Promise',
-    icon: Phone,
-    color: 'text-purple-300',
-    storyQuote: 'I promise to stay connected beyond restrictions, protect you as my eyes, keep difficulties away, and remain just a call away whatever happens.',
-    reflection: 'A lifelong shield of protection and brotherhood without conditions.',
+    pairKey: 'promise',
+    name: 'Protected As My Eyes',
+    phase: 'Forever',
+    icon: Shield,
+    color: 'text-blue-300',
+    storyQuote: 'On this special day I promise you that I will stay connected beyond restrictions and whatever the situation is, and I will protect you as my eyes and keep away difficulties. Just a call away.',
+    reflection: 'A sacred lifelong brotherly vow to protect you as my own eyes.',
   },
 ];
 
-function generateShuffledCards(): MemoryCardItem[] {
+const generateShuffledCards = (): MemoryCardItem[] => {
   const cards: MemoryCardItem[] = [];
-  let id = 1;
-  MEMORY_PAIR_DEFINITIONS.forEach((pair) => {
-    cards.push({ id: id++, pairKey: pair.pairKey, name: pair.name, iconName: pair.pairKey, isFlipped: false, isMatched: false });
-    cards.push({ id: id++, pairKey: pair.pairKey, name: pair.name, iconName: pair.pairKey, isFlipped: false, isMatched: false });
+  let idCounter = 1;
+
+  MEMORY_PAIR_DEFINITIONS.forEach((def) => {
+    cards.push({
+      id: idCounter++,
+      pairKey: def.pairKey,
+      name: def.name,
+      iconName: def.pairKey,
+      isFlipped: false,
+      isMatched: false,
+    });
+    cards.push({
+      id: idCounter++,
+      pairKey: def.pairKey,
+      name: def.name,
+      iconName: def.pairKey,
+      isFlipped: false,
+      isMatched: false,
+    });
   });
 
-  // Fisher-Yates Shuffle
-  for (let i = cards.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
-  }
-  return cards;
-}
+  return cards.sort(() => Math.random() - 0.5);
+};
 
-export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurprise, onNavigateToLetter }) => {
+export const GamesSection: React.FC<GamesSectionProps> = ({
+  config,
+  onOpenSurprise,
+  onNavigateToLetter,
+}) => {
   const [activeGame, setActiveGame] = useState<ActiveGame>('balloons');
 
-  // ------------------------------------------
+  // ==========================================
+  // GLOBAL ARCADE GAMIFICATION & XP SYSTEM
+  // ==========================================
+  const [playerXP, setPlayerXP] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('doctor_paapa_arcade_xp');
+      return saved ? parseInt(saved, 10) : 120;
+    }
+    return 120;
+  });
+
+  const [xpToast, setXpToast] = useState<{ amount: number; text: string } | null>(null);
+
+  const awardXP = useCallback((amount: number, reason: string) => {
+    setPlayerXP((prev) => {
+      const next = prev + amount;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('doctor_paapa_arcade_xp', next.toString());
+      }
+      return next;
+    });
+    setXpToast({ amount, text: reason });
+    setTimeout(() => setXpToast(null), 2500);
+  }, []);
+
+  // Compute Player Level
+  const getLevelInfo = (xp: number) => {
+    if (xp < 180) return { level: 1, title: 'Starlight Novice', nextThreshold: 180, icon: '⭐' };
+    if (xp < 380) return { level: 2, title: 'Memory Weaver', nextThreshold: 380, icon: '🌸' };
+    if (xp < 650) return { level: 3, title: 'Radiant Paapa', nextThreshold: 650, icon: '✨' };
+    if (xp < 1000) return { level: 4, title: 'Cosmic Healer', nextThreshold: 1000, icon: '🩺' };
+    return { level: 5, title: 'Doctor Paapa Legend', nextThreshold: 1500, icon: '👑' };
+  };
+
+  const levelInfo = getLevelInfo(playerXP);
+  const prevThreshold = levelInfo.level === 1 ? 0 : levelInfo.level === 2 ? 180 : levelInfo.level === 3 ? 380 : levelInfo.level === 4 ? 650 : 1000;
+  const levelProgress = Math.min(100, Math.max(5, ((playerXP - prevThreshold) / (levelInfo.nextThreshold - prevThreshold)) * 100));
+
+  // ==========================================
   // GAME 1 STATE: Balloon Pop
-  // ------------------------------------------
+  // ==========================================
   const [balloons, setBalloons] = useState<BalloonItem[]>(() =>
     INITIAL_BALLOONS.map((b) => ({ ...b, popped: false }))
   );
   const [selectedWish, setSelectedWish] = useState<BalloonItem | null>(null);
+  const [balloonStreak, setBalloonStreak] = useState(0);
+  const lastPopTimeRef = useRef<number>(0);
 
   const poppedCount = balloons.filter((b) => b.popped).length;
   const allBalloonsPopped = poppedCount === balloons.length;
 
-  const handlePopBalloon = (id: number, e: React.MouseEvent) => {
+  const handlePopBalloon = (id: number, e: React.MouseEvent | React.TouchEvent) => {
     const target = balloons.find((b) => b.id === id);
     if (!target || target.popped) return;
 
+    triggerHaptic([25, 40]);
     sound.playBalloonPop();
-    triggerTapSparkle(e.clientX, e.clientY);
+
+    const clientX = 'clientX' in e ? e.clientX : e.touches?.[0]?.clientX || window.innerWidth / 2;
+    const clientY = 'clientY' in e ? e.clientY : e.touches?.[0]?.clientY || window.innerHeight / 2;
+    triggerTapSparkle(clientX, clientY);
+
+    const now = Date.now();
+    let newStreak = 1;
+    if (now - lastPopTimeRef.current < 4500) {
+      newStreak = balloonStreak + 1;
+    }
+    lastPopTimeRef.current = now;
+    setBalloonStreak(newStreak);
 
     const updated = balloons.map((b) => (b.id === id ? { ...b, popped: true } : b));
     setBalloons(updated);
     setSelectedWish(target);
 
-    // If all are now popped, trigger fanfare
+    // Award XP
+    const xpBonus = newStreak > 1 ? 25 + newStreak * 10 : 25;
+    awardXP(xpBonus, newStreak > 1 ? `Pop Streak x${newStreak}!` : 'Balloon Popped!');
+
     if (updated.every((b) => b.popped)) {
       setTimeout(() => {
+        triggerHaptic([50, 100, 50, 100]);
         sound.playSurpriseReveal();
         triggerSurpriseConfetti();
-      }, 300);
+        awardXP(100, 'All 6 Birthday Wishes Unlocked! 🏆');
+      }, 400);
     }
   };
 
   const handleResetBalloons = () => {
     sound.playNavClick();
+    triggerHaptic(15);
     setBalloons(INITIAL_BALLOONS.map((b) => ({ ...b, popped: false })));
     setSelectedWish(null);
+    setBalloonStreak(0);
   };
 
-  // ------------------------------------------
+  // ==========================================
   // GAME 2 STATE: Memory Match
-  // ------------------------------------------
+  // ==========================================
   const [memoryCards, setMemoryCards] = useState<MemoryCardItem[]>(generateShuffledCards);
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
+  const [memoryCombo, setMemoryCombo] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [memoryCompleted, setMemoryCompleted] = useState(false);
   const [gameTime, setGameTime] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [latestMatchedStory, setLatestMatchedStory] = useState<MemoryPairDefinition | null>(null);
-  const [unlockedPairs, setUnlockedPairs] = useState<string[]>([]);
 
   useEffect(() => {
     let interval: any = null;
@@ -256,6 +370,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       setTimerActive(true);
     }
 
+    triggerHaptic(15);
     sound.playCardFlip();
     const newCards = [...memoryCards];
     newCards[index].isFlipped = true;
@@ -272,6 +387,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       if (newCards[firstIdx].pairKey === newCards[secondIdx].pairKey) {
         // Matched!
         setTimeout(() => {
+          triggerHaptic([30, 50, 40]);
           sound.playMatchSuccess();
           triggerSurpriseConfetti();
           newCards[firstIdx].isMatched = true;
@@ -282,62 +398,87 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
           const newMatches = matches + 1;
           setMatches(newMatches);
 
+          const newCombo = memoryCombo + 1;
+          setMemoryCombo(newCombo);
+
           const matchedDef = MEMORY_PAIR_DEFINITIONS.find((p) => p.pairKey === newCards[firstIdx].pairKey);
           if (matchedDef) {
             setLatestMatchedStory(matchedDef);
-            setUnlockedPairs((prev) => Array.from(new Set([...prev, matchedDef.pairKey])));
           }
+
+          awardXP(35 + (newCombo > 1 ? 20 : 0), newCombo > 1 ? `Combo x${newCombo} Match!` : 'Memory Milestone Matched!');
 
           if (newMatches === 6) {
             setMemoryCompleted(true);
             setTimerActive(false);
+            awardXP(150, 'Memory Challenge Mastered! ★★★');
           }
-        }, 500);
+        }, 450);
       } else {
         // Mismatch
+        setMemoryCombo(0);
         setTimeout(() => {
+          triggerHaptic(20);
           sound.playMatchMismatch();
           newCards[firstIdx].isFlipped = false;
           newCards[secondIdx].isFlipped = false;
           setMemoryCards([...newCards]);
           setFlippedIndices([]);
           setIsProcessing(false);
-        }, 850);
+        }, 800);
       }
     }
   };
 
   const handleResetMemory = () => {
     sound.playNavClick();
+    triggerHaptic(15);
     setMemoryCards(generateShuffledCards());
     setFlippedIndices([]);
     setMoves(0);
     setMatches(0);
+    setMemoryCombo(0);
     setIsProcessing(false);
     setMemoryCompleted(false);
     setGameTime(0);
     setTimerActive(false);
     setLatestMatchedStory(null);
-    setUnlockedPairs([]);
   };
 
-  // ------------------------------------------
-  // GAME 3 STATE: Starlight Wish Catcher
-  // ------------------------------------------
+  // Calculate memory star rating
+  const getMemoryStars = () => {
+    if (moves <= 10) return 3;
+    if (moves <= 16) return 2;
+    return 1;
+  };
+
+  // ==========================================
+  // GAME 3 STATE: Starlight Wish Catcher (Mobile-Engineered)
+  // ==========================================
   const [catcherScore, setCatcherScore] = useState(0);
+  const [catcherHighScore, setCatcherHighScore] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('doctor_paapa_catcher_highscore');
+      return saved ? parseInt(saved, 10) : 180;
+    }
+    return 180;
+  });
   const [catcherActive, setCatcherActive] = useState(false);
   const [combo, setCombo] = useState(1);
   const [catcherMilestone, setCatcherMilestone] = useState<string | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const basketXRef = useRef<number>(200);
+  const basketXRef = useRef<number>(180);
   const animationFrameIdRef = useRef<number | null>(null);
+  const isMovingLeftRef = useRef<boolean>(false);
+  const isMovingRightRef = useRef<boolean>(false);
 
   interface FallingItem {
     x: number;
     y: number;
     speed: number;
     size: number;
-    type: 'star' | 'cupcake' | 'heart' | 'gift';
+    type: 'star' | 'cupcake' | 'heart' | 'gift' | 'doctor';
     points: number;
     emoji: string;
   }
@@ -348,23 +489,27 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
 
   const startCatcherGame = () => {
     sound.playMatchLight();
-    setCatcherScore(0);
-    scoreRef.current = 0;
-    setCombo(1);
-    comboRef.current = 1;
-    setCatcherMilestone(null);
+    triggerHaptic([20, 30]);
     setCatcherActive(true);
+    setCatcherScore(0);
+    setCombo(1);
+    setCatcherMilestone(null);
+    scoreRef.current = 0;
+    comboRef.current = 1;
     itemsRef.current = [];
   };
 
   const stopCatcherGame = () => {
+    sound.playNavClick();
+    triggerHaptic(15);
     setCatcherActive(false);
     if (animationFrameIdRef.current) {
       cancelAnimationFrame(animationFrameIdRef.current);
+      animationFrameIdRef.current = null;
     }
   };
 
-  // Canvas loop
+  // Game Loop
   useEffect(() => {
     if (!catcherActive) return;
 
@@ -373,111 +518,136 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let width = (canvas.width = canvas.parentElement?.clientWidth || 400);
+    let width = (canvas.width = canvas.parentElement?.clientWidth || 360);
     let height = (canvas.height = 360);
+
     basketXRef.current = width / 2;
 
-    let lastSpawn = Date.now();
+    const itemTypes: { type: FallingItem['type']; emoji: string; points: number; weight: number }[] = [
+      { type: 'star', emoji: '⭐', points: 10, weight: 50 },
+      { type: 'cupcake', emoji: '🧁', points: 25, weight: 25 },
+      { type: 'heart', emoji: '💖', points: 35, weight: 15 },
+      { type: 'gift', emoji: '🎁', points: 50, weight: 8 },
+      { type: 'doctor', emoji: '🩺', points: 100, weight: 2 },
+    ];
+
+    let spawnTimer = 0;
 
     const render = () => {
+      // Handle button-driven left/right movement
+      if (isMovingLeftRef.current) {
+        basketXRef.current = Math.max(35, basketXRef.current - 7);
+      }
+      if (isMovingRightRef.current) {
+        basketXRef.current = Math.min(width - 35, basketXRef.current + 7);
+      }
+
       ctx.clearRect(0, 0, width, height);
 
-      // Draw background ambient stars
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      for (let i = 0; i < 20; i++) {
-        const sx = (i * 37) % width;
-        const sy = (i * 73) % height;
+      // Draw starry night backdrop
+      ctx.fillStyle = '#100315';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw gentle starry twinkles
+      for (let s = 0; s < 18; s++) {
+        const sx = (s * 37 + (Date.now() / 40) * (s % 3 + 1)) % width;
+        const sy = (s * 41 + s * 13) % (height - 60);
+        ctx.fillStyle = s % 2 === 0 ? 'rgba(255, 218, 185, 0.4)' : 'rgba(230, 230, 250, 0.35)';
         ctx.fillRect(sx, sy, 2, 2);
       }
 
-      // Spawn falling item periodically
-      if (Date.now() - lastSpawn > 850) {
-        lastSpawn = Date.now();
-        const rand = Math.random();
-        let type: FallingItem['type'] = 'star';
-        let emoji = '⭐';
-        let points = 10;
-        let speed = 2.2 + Math.random() * 1.5;
+      // Draw Basket
+      const basketW = Math.min(90, width * 0.26);
+      const basketH = 26;
+      const basketY = height - 42;
+      const bx = Math.max(basketW / 2, Math.min(width - basketW / 2, basketXRef.current));
 
-        if (rand > 0.8) {
-          type = 'gift';
-          emoji = '🎁';
-          points = 30;
-          speed += 0.8;
-        } else if (rand > 0.55) {
-          type = 'cupcake';
-          emoji = '🧁';
-          points = 20;
-        } else if (rand > 0.35) {
-          type = 'heart';
-          emoji = '💖';
-          points = 15;
+      // Basket Glow
+      const glowGrad = ctx.createRadialGradient(bx, basketY + 10, 5, bx, basketY + 10, basketW);
+      glowGrad.addColorStop(0, comboRef.current >= 4 ? 'rgba(251, 191, 36, 0.4)' : 'rgba(183, 110, 121, 0.35)');
+      glowGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGrad;
+      ctx.fillRect(bx - basketW, basketY - 20, basketW * 2, 60);
+
+      // Basket Body
+      ctx.fillStyle = comboRef.current >= 4 ? '#d97706' : '#b76e79';
+      ctx.beginPath();
+      ctx.roundRect(bx - basketW / 2, basketY, basketW, basketH, [6, 6, 14, 14]);
+      ctx.fill();
+      ctx.strokeStyle = '#ffdab9';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Basket label
+      ctx.fillStyle = '#fffdf9';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(comboRef.current >= 4 ? '🔥 MAX FRENZY' : '🧺 Paapa Basket', bx, basketY + 16);
+
+      // Spawn falling items
+      spawnTimer++;
+      if (spawnTimer % 42 === 0) {
+        const rand = Math.random() * 100;
+        let cumulative = 0;
+        let chosen = itemTypes[0];
+        for (const it of itemTypes) {
+          cumulative += it.weight;
+          if (rand <= cumulative) {
+            chosen = it;
+            break;
+          }
         }
 
         itemsRef.current.push({
-          x: 20 + Math.random() * (width - 40),
+          x: Math.random() * (width - 60) + 30,
           y: -20,
-          speed,
-          size: 26,
-          type,
-          points,
-          emoji,
+          speed: 2.2 + Math.random() * 1.6 + Math.min(2.5, scoreRef.current / 150),
+          size: chosen.type === 'doctor' ? 30 : 24,
+          type: chosen.type,
+          points: chosen.points,
+          emoji: chosen.emoji,
         });
       }
 
-      // Draw Basket / Catcher
-      const basketWidth = 70;
-      const basketHeight = 16;
-      const bx = Math.max(10, Math.min(width - basketWidth - 10, basketXRef.current - basketWidth / 2));
-      const by = height - 36;
-
-      // Glow behind catcher
-      ctx.save();
-      ctx.shadowColor = '#f7e7ce';
-      ctx.shadowBlur = 14;
-      const gradient = ctx.createLinearGradient(bx, by, bx + basketWidth, by);
-      gradient.addColorStop(0, '#b76e79');
-      gradient.addColorStop(0.5, '#f7e7ce');
-      gradient.addColorStop(1, '#ffdab9');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.roundRect(bx, by, basketWidth, basketHeight, [4, 4, 12, 12]);
-      ctx.fill();
-
-      // Monogram on Catcher
-      ctx.fillStyle = '#1e0524';
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`FOR MEERA`, bx + basketWidth / 2, by + 12);
-      ctx.restore();
-
-      // Update & Draw falling items
+      // Update & Draw Items
       for (let i = itemsRef.current.length - 1; i >= 0; i--) {
         const item = itemsRef.current[i];
         item.y += item.speed;
 
-        ctx.font = '22px sans-serif';
+        ctx.font = `${item.size}px sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText(item.emoji, item.x, item.y);
 
-        // Collision Check with basket
+        // Check collision with basket
         if (
-          item.y >= by - 10 &&
-          item.y <= by + basketHeight + 10 &&
-          item.x >= bx - 8 &&
-          item.x <= bx + basketWidth + 8
+          item.y >= basketY - 12 &&
+          item.y <= basketY + basketH &&
+          Math.abs(item.x - bx) < basketW / 2 + 10
         ) {
-          // Caught item!
+          triggerHaptic(20);
           sound.playStarCatch(comboRef.current);
-          scoreRef.current += item.points * comboRef.current;
+
+          const gained = item.points * comboRef.current;
+          scoreRef.current += gained;
           setCatcherScore(scoreRef.current);
 
-          comboRef.current = Math.min(5, comboRef.current + 1);
-          setCombo(comboRef.current);
+          // Update High Score
+          if (scoreRef.current > catcherHighScore) {
+            setCatcherHighScore(scoreRef.current);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('doctor_paapa_catcher_highscore', scoreRef.current.toString());
+            }
+          }
 
-          // Check milestones
+          awardXP(Math.round(gained / 2), `Caught ${item.emoji} (+${gained}pts)`);
+
+          const nextCombo = Math.min(5, comboRef.current + 1);
+          comboRef.current = nextCombo;
+          setCombo(nextCombo);
+
+          // Milestone alerts
           if (scoreRef.current >= 150 && !catcherMilestone) {
-            setCatcherMilestone('🌟 Milestone: "Meera, your aura is pure sunshine!" (+Bonus Confetti)');
+            setCatcherMilestone('🌟 Starlight Champion reached! Outstanding reflexes, Doctor Paapa!');
             triggerSurpriseConfetti();
           }
 
@@ -501,86 +671,132 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
     return () => {
       if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current);
     };
-  }, [catcherActive]);
+  }, [catcherActive, catcherHighScore, awardXP]);
 
-  // Handle mouse / touch for basket
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // Touch Drag for Basket
+  const handleTouchGlide = (clientX: number) => {
     if (!canvasRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
-    basketXRef.current = e.clientX - rect.left;
-  };
-
-  const handleCanvasTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current) return;
-    const rect = canvasRef.current.getBoundingClientRect();
-    if (e.touches[0]) {
-      basketXRef.current = e.touches[0].clientX - rect.left;
-    }
+    const relativeX = clientX - rect.left;
+    basketXRef.current = Math.max(30, Math.min(rect.width - 30, relativeX));
   };
 
   return (
-    <section className="relative min-h-[calc(100dvh-5rem)] flex flex-col items-center justify-start px-3 sm:px-4 py-6 sm:py-10 md:py-12 max-w-5xl mx-auto">
-      {/* Top Banner / Editorial Header */}
-      <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 rounded-full bg-white/5 border border-[#f7e7ce]/20 backdrop-blur-md mb-3 sm:mb-4 shadow-sm">
-        <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ffdab9] shrink-0" />
-        <span className="font-serif-display text-[9px] sm:text-xs tracking-widest text-[#ffdab9] uppercase font-medium">
-          The Celebration Arcade · Made for {config.name}
-        </span>
-        <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ffdab9] shrink-0" />
+    <section className="relative min-h-[calc(100dvh-5rem)] flex flex-col items-center justify-start px-2 sm:px-4 py-4 sm:py-8 max-w-5xl mx-auto w-full">
+      {/* ======================================================== */}
+      {/* ARCADE GAMIFICATION BAR: XP & PLAYER LEVEL               */}
+      {/* ======================================================== */}
+      <div className="w-full max-w-xl mx-auto mb-4 p-2.5 sm:p-3 rounded-2xl bg-white/5 border border-[#f7e7ce]/25 backdrop-blur-md shadow-lg flex items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-[#b76e79] to-[#8d3d4b] border border-[#ffdab9]/40 flex items-center justify-center text-lg sm:text-xl shadow-md shrink-0">
+            {levelInfo.icon}
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#ffdab9] font-semibold">
+                Level {levelInfo.level}
+              </span>
+              <span className="text-xs font-serif-display font-bold text-[#fffdf9]">
+                {levelInfo.title}
+              </span>
+            </div>
+            <div className="w-28 sm:w-40 h-1.5 bg-black/40 rounded-full overflow-hidden mt-1 border border-white/10">
+              <div
+                className="h-full bg-gradient-to-r from-amber-400 via-amber-300 to-[#b76e79] rounded-full transition-all duration-500"
+                style={{ width: `${levelProgress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="text-right shrink-0">
+          <div className="text-[10px] uppercase font-mono tracking-wider text-[#e6e6fa]/70">
+            Arcade Score
+          </div>
+          <div className="text-sm sm:text-base font-bold text-amber-300 font-mono">
+            {playerXP} XP
+          </div>
+        </div>
       </div>
 
-      <h1 className="font-serif-display text-2xl sm:text-4xl md:text-5xl font-bold text-center text-[#fffdf9] tracking-tight mb-1.5 sm:mb-2 px-2">
-        Play & Unlock <span className="gold-foil-text font-script text-3xl sm:text-5xl md:text-6xl">Birthday Magic</span>
+      {/* Floating XP Gain Notification Toast */}
+      {xpToast && (
+        <div
+          role="status"
+          className="fixed top-18 z-50 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-[#b76e79] text-stone-950 font-serif-display font-bold text-xs sm:text-sm shadow-2xl flex items-center gap-2 animate-bounce border border-[#fffdf9]/40"
+        >
+          <Zap className="w-4 h-4 fill-current" />
+          <span>+{xpToast.amount} XP · {xpToast.text}</span>
+        </div>
+      )}
+
+      {/* Top Header */}
+      <h1 className="font-serif-display text-2xl sm:text-4xl md:text-5xl font-bold text-center text-[#fffdf9] tracking-tight mb-1 sm:mb-2 px-1">
+        Play & Unlock <span className="gold-foil-text font-script text-3xl sm:text-5xl">Birthday Magic</span>
       </h1>
-      <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/75 text-center max-w-lg mb-5 sm:mb-8 italic px-2">
-        A playful sanctuary designed to make you smile. Pop balloons for hidden notes, test your memory, or catch falling starlight wishes!
+      <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/75 text-center max-w-lg mb-4 sm:mb-6 italic px-2">
+        A playful, heartwarming arcade dedicated to Meera. Pop secret wish balloons, match memories, and catch cosmic starlight!
       </p>
 
-      {/* Modern Game Navigation Pills */}
-      <div className="w-full max-w-md flex items-center justify-between p-1 sm:p-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6 sm:mb-8 shadow-lg gap-1">
+      {/* ======================================================== */}
+      {/* MOBILE IN-GAME NAVIGATION PILL DOCK                      */}
+      {/* ======================================================== */}
+      <div className="w-full max-w-md flex items-center justify-between p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md mb-4 sm:mb-6 shadow-lg gap-1">
         <button
           type="button"
           onClick={() => {
             sound.playNavClick();
+            triggerHaptic(15);
             setActiveGame('balloons');
           }}
-          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-full text-[11px] sm:text-xs font-serif-display font-medium transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer ${
+          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-xs font-serif-display font-medium transition-all duration-300 flex flex-col items-center justify-center cursor-pointer active:scale-95 ${
             activeGame === 'balloons'
               ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30 font-semibold'
               : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
           }`}
         >
-          <span>🎈 Balloons</span>
+          <span className="text-xs sm:text-sm">🎈 Balloons</span>
+          <span className="text-[9px] font-mono opacity-80 mt-0.5">
+            {poppedCount}/6 Popped
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => {
             sound.playNavClick();
+            triggerHaptic(15);
             setActiveGame('memory');
           }}
-          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-full text-[11px] sm:text-xs font-serif-display font-medium transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer ${
+          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-xs font-serif-display font-medium transition-all duration-300 flex flex-col items-center justify-center cursor-pointer active:scale-95 ${
             activeGame === 'memory'
               ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30 font-semibold'
               : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
           }`}
         >
-          <span>🃏 Memory</span>
+          <span className="text-xs sm:text-sm">🃏 Memory</span>
+          <span className="text-[9px] font-mono opacity-80 mt-0.5">
+            {matches}/6 Pairs
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => {
             sound.playNavClick();
+            triggerHaptic(15);
             setActiveGame('catcher');
           }}
-          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-full text-[11px] sm:text-xs font-serif-display font-medium transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer ${
+          className={`flex-1 py-2 px-1.5 sm:px-3 rounded-xl text-xs font-serif-display font-medium transition-all duration-300 flex flex-col items-center justify-center cursor-pointer active:scale-95 ${
             activeGame === 'catcher'
               ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30 font-semibold'
               : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
           }`}
         >
-          <span>⭐ Catcher</span>
+          <span className="text-xs sm:text-sm">⭐ Catcher</span>
+          <span className="text-[9px] font-mono opacity-80 mt-0.5">
+            Best: {catcherHighScore}
+          </span>
         </button>
       </div>
 
@@ -590,20 +806,25 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       {activeGame === 'balloons' && (
         <div className="w-full max-w-4xl flex flex-col items-center animate-fade-in">
           {/* Header Stats */}
-          <div className="w-full flex items-center justify-between px-1 sm:px-2 mb-4 sm:mb-6">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9]">
+          <div className="w-full flex items-center justify-between px-2 mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9]">
                 Wishes:
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/30 text-[11px] sm:text-xs font-bold text-[#fffdf9]">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/30 text-xs font-bold text-[#fffdf9]">
                 {poppedCount} / {balloons.length}
               </span>
+              {balloonStreak > 1 && (
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-stone-950 font-bold text-[10px] animate-pulse">
+                  🔥 Streak x{balloonStreak}
+                </span>
+              )}
             </div>
 
             <button
               type="button"
               onClick={handleResetBalloons}
-              className="text-[11px] sm:text-xs font-serif-display text-[#e6e6fa]/70 hover:text-[#ffdab9] flex items-center gap-1 transition-colors cursor-pointer"
+              className="text-xs font-serif-display text-[#e6e6fa]/70 hover:text-[#ffdab9] flex items-center gap-1 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset Balloons</span>
@@ -611,19 +832,15 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
           </div>
 
           {/* Balloon Sky Container */}
-          <div className="w-full p-4 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl bg-black/30 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-8">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#b76e79]/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#ffdab9]/10 rounded-full blur-3xl pointer-events-none" />
-
-            {/* Instruction Banner */}
+          <div className="w-full p-4 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/35 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-6">
             <div className="text-center mb-4 sm:mb-6">
               <p className="text-xs sm:text-sm font-serif-display text-[#f7e7ce]/80 italic px-2">
-                Tap each floating balloon to burst it and reveal the hidden secret wish prepared for you!
+                Tap each floating balloon to burst it and reveal the heartfelt secret note prepared for you!
               </p>
             </div>
 
-            {/* Balloons Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 sm:gap-4 justify-items-center">
+            {/* Balloons Touch Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-5 sm:gap-4 justify-items-center">
               {balloons.map((balloon) => (
                 <div key={balloon.id} className="flex flex-col items-center">
                   {!balloon.popped ? (
@@ -635,30 +852,26 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                     >
                       {/* Realistic Balloon Shape */}
                       <div
-                        className={`w-20 h-26 sm:w-22 sm:h-28 rounded-[50%_50%_50%_50%_/_45%_45%_55%_55%] bg-gradient-to-tr ${balloon.color} border ${balloon.borderColor} shadow-xl ${balloon.glowColor} relative overflow-hidden flex items-center justify-center`}
+                        className={`w-22 h-28 sm:w-24 sm:h-30 rounded-[50%_50%_50%_50%_/_45%_45%_55%_55%] bg-gradient-to-tr ${balloon.color} border ${balloon.borderColor} shadow-xl ${balloon.glowColor} relative overflow-hidden flex items-center justify-center`}
                       >
-                        {/* Shimmer / Gloss Reflection */}
-                        <div className="absolute top-2 left-3 w-4 h-7 rounded-full bg-white/35 -rotate-45 blur-[0.6px]" />
-                        <span className="font-serif-display text-[10px] font-bold tracking-widest uppercase text-white/90 drop-shadow">
-                          POP ME
-                        </span>
+                        <div className="absolute top-3 left-3 w-5 h-7 rounded-[50%] bg-white/35 -rotate-30 blur-[1px]" />
+                        <Sparkles className="w-6 h-6 text-white/90 drop-shadow-md" />
                       </div>
-
-                      {/* Balloon Knot */}
-                      <div className="w-3 h-2 rounded-b-sm bg-gradient-to-b from-[#b76e79] to-[#591b2c] mx-auto -mt-0.5" />
-
-                      {/* Dangling String */}
-                      <div className="w-[1.5px] h-8 bg-gradient-to-b from-[#f7e7ce]/60 via-[#ffdab9]/30 to-transparent mx-auto" />
+                      <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-rose-400 mx-auto -mt-0.5" />
+                      <div className="w-0.5 h-7 bg-white/30 mx-auto" />
                     </button>
                   ) : (
-                    /* Popped State Placeholder */
                     <button
                       type="button"
-                      onClick={() => setSelectedWish(balloon)}
-                      className="w-20 h-28 flex flex-col items-center justify-center p-2 rounded-2xl bg-white/5 border border-white/10 hover:border-[#ffdab9]/40 transition-all cursor-pointer group"
+                      onClick={() => {
+                        sound.playNavClick();
+                        triggerHaptic(15);
+                        setSelectedWish(balloon);
+                      }}
+                      className="w-20 h-28 sm:w-22 sm:h-30 flex flex-col items-center justify-center p-2 rounded-2xl bg-white/5 border border-[#ffdab9]/30 hover:border-[#ffdab9]/60 transition-all cursor-pointer group shadow-inner"
                     >
-                      <CheckCircle2 className="w-6 h-6 text-[#ffdab9] mb-1 group-hover:scale-110 transition-transform" />
-                      <span className="text-[10px] font-serif-display text-[#e6e6fa]/80 tracking-tight text-center leading-tight">
+                      <CheckCircle2 className="w-7 h-7 text-[#ffdab9] mb-1.5 group-hover:scale-110 transition-transform" />
+                      <span className="text-[10px] font-serif-display text-[#fffdf9] font-semibold text-center leading-tight">
                         Read Note #{balloon.id}
                       </span>
                     </button>
@@ -667,24 +880,56 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               ))}
             </div>
 
-            {/* Revealed Note Display Card */}
+            {/* Revealed Note Modal Drawer (Pops up directly on screen for mobile accessibility) */}
             {selectedWish && (
-              <div className="mt-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-[#2e0b38]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#f7e7ce]/35 shadow-xl text-center animate-fade-in relative">
-                <div className="flex items-center justify-center gap-1.5 text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] mb-2 font-medium">
-                  <Sparkles className="w-3.5 h-3.5 text-[#ffdab9]" />
-                  <span>{selectedWish.title}</span>
-                  <Sparkles className="w-3.5 h-3.5 text-[#ffdab9]" />
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-fade-in"
+                onClick={() => setSelectedWish(null)}
+              >
+                <div
+                  className="w-full max-w-lg p-5 sm:p-8 rounded-3xl bg-gradient-to-b from-[#380e42] via-[#24082b] to-[#140319] border border-[#ffdab9]/50 shadow-2xl text-center relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setSelectedWish(null)}
+                    aria-label="Close wish note"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-[#fffdf9] transition-all cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="w-12 h-12 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/40 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-6 h-6 text-[#ffdab9]" />
+                  </div>
+
+                  <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] font-semibold block mb-1">
+                    {selectedWish.title}
+                  </span>
+
+                  <p className="font-serif-display text-base sm:text-lg text-[#fffdf9] italic my-4 leading-relaxed px-2">
+                    "{selectedWish.wish}"
+                  </p>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedWish(null)}
+                      className="w-full py-3 rounded-full bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-semibold text-xs tracking-wider uppercase shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <span>Keep Playing & Pop More 🎈</span>
+                    </button>
+                  </div>
                 </div>
-                <p className="font-serif-display text-base sm:text-lg text-[#fffdf9] italic max-w-xl mx-auto leading-relaxed">
-                  "{selectedWish.wish}"
-                </p>
               </div>
             )}
 
-            {/* All Popped Grand Trophy */}
+            {/* Grand Trophy for All Balloons */}
             {allBalloonsPopped && (
               <div className="mt-8 p-6 rounded-3xl bg-gradient-to-b from-amber-950/40 via-purple-950/40 to-black/60 border border-amber-300/40 text-center animate-fade-in">
-                <Trophy className="w-10 h-10 text-amber-300 mx-auto mb-2 animate-bounce" />
+                <Trophy className="w-12 h-12 text-amber-300 mx-auto mb-2 animate-bounce" />
                 <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-amber-200 mb-1">
                   All 6 Birthday Wishes Unlocked! 🏆
                 </h3>
@@ -694,17 +939,21 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                 <div className="flex flex-wrap items-center justify-center gap-3">
                   <button
                     type="button"
-                    onClick={onOpenSurprise}
-                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-900 font-serif-display font-semibold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
+                    onClick={() => {
+                      sound.playNavClick();
+                      triggerHaptic(15);
+                      setActiveGame('memory');
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-900 font-serif-display font-bold text-xs tracking-wider uppercase shadow-lg hover:brightness-110 transition-all cursor-pointer"
                   >
-                    <span>Blow Your Birthday Candles 🎂</span>
+                    <span>Play Memory Match Next 🃏</span>
                   </button>
                   <button
                     type="button"
-                    onClick={handleResetBalloons}
+                    onClick={onOpenSurprise}
                     className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer"
                   >
-                    <span>Play Again</span>
+                    <span>Cut Birthday Cake 🎂</span>
                   </button>
                 </div>
               </div>
@@ -719,19 +968,19 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       {activeGame === 'memory' && (
         <div className="w-full max-w-3xl flex flex-col items-center animate-fade-in">
           {/* Header Dashboard */}
-          <div className="w-full flex items-center justify-between px-2 mb-6">
-            <div className="flex items-center gap-4 text-xs font-serif-display text-[#e6e6fa]/80">
+          <div className="w-full flex items-center justify-between px-2 mb-3">
+            <div className="flex items-center gap-3 sm:gap-4 text-xs font-serif-display text-[#e6e6fa]/80">
               <div>
                 <span>Moves: </span>
-                <strong className="text-[#ffdab9] font-sans">{moves}</strong>
+                <strong className="text-[#ffdab9] font-sans text-sm">{moves}</strong>
               </div>
               <div>
                 <span>Matches: </span>
-                <strong className="text-[#ffdab9] font-sans">{matches} / 6</strong>
+                <strong className="text-[#ffdab9] font-sans text-sm">{matches} / 6</strong>
               </div>
               <div>
                 <span>Time: </span>
-                <strong className="text-[#ffdab9] font-sans">{gameTime}s</strong>
+                <strong className="text-[#ffdab9] font-sans text-sm">{gameTime}s</strong>
               </div>
             </div>
 
@@ -741,13 +990,13 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               className="text-xs font-serif-display text-[#e6e6fa]/70 hover:text-[#ffdab9] flex items-center gap-1 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Shuffle & Restart</span>
+              <span>Shuffle</span>
             </button>
           </div>
 
-          {/* Cards Grid */}
-          <div className="w-full p-3.5 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/30 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-8">
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3.5 max-w-xl mx-auto">
+          {/* Cards Grid - 3 columns on mobile for large comfortable touch targets */}
+          <div className="w-full p-3 sm:p-6 rounded-2xl sm:rounded-3xl bg-black/35 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3.5 max-w-lg mx-auto">
               {memoryCards.map((card, idx) => {
                 const pairDef = MEMORY_PAIR_DEFINITIONS.find((p) => p.pairKey === card.pairKey);
                 const IconComponent = pairDef?.icon || Cake;
@@ -759,33 +1008,33 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                     type="button"
                     onClick={() => handleCardClick(idx)}
                     disabled={isShown || isProcessing}
-                    className={`aspect-square rounded-xl sm:rounded-2xl relative cursor-pointer select-none transition-all duration-300 transform perspective-1000 ${
-                      isShown ? 'rotate-y-180' : 'hover:scale-105 active:scale-95'
+                    className={`aspect-square rounded-xl sm:rounded-2xl relative cursor-pointer select-none transition-all duration-300 transform perspective-1000 active:scale-95 touch-manipulation ${
+                      isShown ? 'scale-100 ring-2 ring-amber-300/60 shadow-lg' : 'hover:scale-102 hover:border-[#ffdab9]/50'
                     }`}
                   >
                     {/* Card Front (Face-Up) */}
                     {isShown ? (
                       <div
-                        className={`w-full h-full rounded-xl sm:rounded-2xl p-2 sm:p-3 flex flex-col items-center justify-center border shadow-xl transition-all ${
+                        className={`w-full h-full rounded-xl sm:rounded-2xl p-1.5 sm:p-3 flex flex-col items-center justify-center border shadow-xl transition-all ${
                           card.isMatched
-                            ? 'bg-gradient-to-b from-[#2e0b38] to-[#1a0521] border-amber-300/60 shadow-amber-400/20'
-                            : 'bg-gradient-to-b from-[#25092c] to-[#120317] border-[#f7e7ce]/40'
+                            ? 'bg-gradient-to-b from-[#380e42] to-[#1f0627] border-amber-300/70 shadow-amber-400/25'
+                            : 'bg-gradient-to-b from-[#2a0933] to-[#15031b] border-[#f7e7ce]/40'
                         }`}
                       >
-                        <IconComponent className={`w-5 h-5 sm:w-8 sm:h-8 mb-1 ${pairDef?.color}`} />
-                        <span className="text-[9px] sm:text-xs font-serif-display text-[#fffdf9] font-medium text-center leading-tight">
+                        <IconComponent className={`w-6 h-6 sm:w-8 sm:h-8 mb-1 ${pairDef?.color}`} />
+                        <span className="text-[10px] sm:text-xs font-serif-display text-[#fffdf9] font-medium text-center leading-tight">
                           {card.name}
                         </span>
                       </div>
                     ) : (
                       /* Card Back (Face-Down) with Gold Monogram */
-                      <div className="w-full h-full rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#380e42] via-[#24082b] to-[#140319] border border-[#f7e7ce]/25 shadow-lg flex flex-col items-center justify-center p-1.5 sm:p-2 group hover:border-[#ffdab9]/50">
+                      <div className="w-full h-full rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#380e42] via-[#24082b] to-[#140319] border border-[#f7e7ce]/25 shadow-lg flex flex-col items-center justify-center p-1.5 group hover:border-[#ffdab9]/50">
                         <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-full border border-[#f7e7ce]/30 flex items-center justify-center bg-white/5">
                           <span className="font-serif-display text-xs sm:text-base font-bold text-[#ffdab9]">
                             M
                           </span>
                         </div>
-                        <span className="text-[7px] sm:text-[8px] font-mono tracking-widest text-[#e6e6fa]/50 uppercase mt-0.5 sm:mt-1">
+                        <span className="text-[7px] sm:text-[8px] font-mono tracking-widest text-[#e6e6fa]/50 uppercase mt-0.5">
                           CARD
                         </span>
                       </div>
@@ -795,122 +1044,94 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               })}
             </div>
 
-            {/* Latest Matched Story Banner */}
+            {/* Matched Milestone Story Drawer Pop-Up */}
             {latestMatchedStory && !memoryCompleted && (
-              <div className="mt-5 sm:mt-6 p-3.5 sm:p-5 rounded-2xl bg-gradient-to-r from-[#390d45]/90 via-[#270830]/95 to-[#190420]/90 border border-[#ffdab9]/40 shadow-xl text-left animate-fade-in relative">
-                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-serif-display uppercase tracking-widest bg-[#ffdab9]/15 text-[#ffdab9] border border-[#ffdab9]/30 font-semibold">
-                      Story Unlocked · {latestMatchedStory.phase}
-                    </span>
-                    <span className="font-serif-display text-[11px] sm:text-xs text-[#fffdf9] font-medium">
-                      {latestMatchedStory.name}
-                    </span>
-                  </div>
-                  <Sparkles className="w-3.5 h-3.5 text-[#ffdab9] animate-spin-slow shrink-0" />
-                </div>
-                <blockquote className="font-serif-display text-xs sm:text-sm text-[#ffdab9] italic leading-relaxed pl-2 border-l-2 border-[#ffdab9]/50">
-                  "{latestMatchedStory.storyQuote}"
-                </blockquote>
-                <p className="text-[10px] sm:text-[11px] font-sans text-[#e6e6fa]/75 mt-1 sm:mt-1.5 pl-2">
-                  {latestMatchedStory.reflection}
-                </p>
-              </div>
-            )}
-
-            {/* Unlocked Story Chapters Shelf */}
-            {unlockedPairs.length > 0 && !memoryCompleted && (
-              <div className="mt-5 sm:mt-6 w-full pt-4 sm:pt-5 border-t border-white/10">
-                <div className="flex flex-wrap items-center justify-between mb-2.5 sm:mb-3 text-xs font-serif-display text-[#e6e6fa]/85 gap-1">
-                  <span className="uppercase tracking-widest text-[#ffdab9] font-medium flex items-center gap-1.5 text-[10px] sm:text-xs">
-                    <Mail className="w-3.5 h-3.5 text-[#ffdab9]" />
-                    Chapters Unlocked ({unlockedPairs.length} / 6)
-                  </span>
-                  <span className="text-[10px] sm:text-[11px] text-[#ffdab9]/80 italic">
-                    Milestones from the letter
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5">
-                  {MEMORY_PAIR_DEFINITIONS.map((def) => {
-                    const isUnlocked = unlockedPairs.includes(def.pairKey);
-                    const Icon = def.icon;
-                    return (
-                      <div
-                        key={def.pairKey}
-                        className={`p-2.5 rounded-xl border text-left transition-all duration-300 ${
-                          isUnlocked
-                            ? 'bg-white/10 border-[#ffdab9]/45 text-[#fffdf9] shadow-sm'
-                            : 'bg-white/5 border-white/5 opacity-40 text-stone-400'
-                        }`}
-                      >
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <Icon className={`w-3.5 h-3.5 ${isUnlocked ? def.color : 'text-stone-500'} shrink-0`} />
-                          <span className="text-[11px] font-serif-display font-medium truncate">
-                            {def.name}
-                          </span>
-                        </div>
-                        <p className="text-[10px] font-serif-display italic line-clamp-2 text-[#e6e6fa]/80">
-                          {isUnlocked ? `"${def.storyQuote}"` : 'Match cards to reveal memory'}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Completed Modal / Celebration */}
-            {memoryCompleted && (
-              <div className="mt-6 sm:mt-8 p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-amber-950/40 via-purple-950/50 to-black/70 border border-amber-300/40 text-center animate-fade-in max-w-lg mx-auto shadow-2xl">
-                <Award className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 mx-auto mb-2 animate-bounce" />
-                <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-serif-display uppercase tracking-widest bg-amber-400/20 text-amber-200 border border-amber-300/40 inline-block mb-1.5 sm:mb-2 font-semibold">
-                  Entire Journey Reunited ✨
-                </span>
-                <h3 className="font-serif-display text-xl sm:text-3xl font-bold text-amber-200 mb-1">
-                  Magnificent Memory, Doctor Paapa! 🩺✨
-                </h3>
-                <p className="text-xs sm:text-sm text-[#f7e7ce]/90 mb-3 sm:mb-4 max-w-md mx-auto">
-                  You solved all 6 matching pairs in <strong>{moves} moves</strong> ({gameTime}s) and unlocked every milestone from childhood to today's sacred promise!
-                </p>
-
-                {/* Complete Story Recap Box */}
-                <div className="bg-black/40 rounded-2xl p-3 sm:p-3.5 mb-4 sm:mb-5 border border-white/10 text-left space-y-2 max-h-52 overflow-y-auto pr-1">
-                  {MEMORY_PAIR_DEFINITIONS.map((def, idx) => {
-                    const Icon = def.icon;
-                    return (
-                      <div key={def.pairKey} className="flex items-start gap-1.5 sm:gap-2 text-xs">
-                        <span className="text-amber-300 font-mono font-bold mt-0.5 shrink-0 text-[11px] sm:text-xs">0{idx + 1}.</span>
-                        <Icon className={`w-3.5 h-3.5 mt-0.5 ${def.color} shrink-0`} />
-                        <div>
-                          <span className="font-semibold text-[#fffdf9]">{def.name}: </span>
-                          <span className="text-[#ffdab9]/90 italic">"{def.storyQuote}"</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
-                  {onNavigateToLetter && (
-                    <button
-                      type="button"
-                      onClick={onNavigateToLetter}
-                      className="w-full sm:w-auto min-h-[44px] px-5 sm:px-6 py-2.5 rounded-2xl sm:rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-semibold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
-                    >
-                      <span>Read The Full Letter 💌</span>
-                    </button>
-                  )}
+              <div
+                role="dialog"
+                className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 animate-fade-in"
+                onClick={() => setLatestMatchedStory(null)}
+              >
+                <div
+                  className="w-full max-w-lg p-5 sm:p-7 rounded-3xl bg-gradient-to-b from-[#380e42] via-[#24082b] to-[#140319] border border-[#ffdab9]/50 shadow-2xl text-center relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
-                    onClick={onOpenSurprise}
-                    className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-2xl sm:rounded-full bg-white/15 hover:bg-white/20 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer border border-white/15"
+                    onClick={() => setLatestMatchedStory(null)}
+                    aria-label="Close milestone"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-[#fffdf9] transition-all cursor-pointer"
                   >
-                    <span>Cut Birthday Cake 🎂</span>
+                    <X className="w-4 h-4" />
+                  </button>
+
+                  <div className="w-12 h-12 rounded-full bg-amber-400/20 border border-amber-300/40 flex items-center justify-center mx-auto mb-2 text-amber-300">
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+
+                  <span className="text-[10px] font-serif-display uppercase tracking-widest text-[#ffdab9] font-semibold">
+                    Milestone Unlocked · {latestMatchedStory.phase}
+                  </span>
+
+                  <h3 className="font-serif-display text-lg sm:text-xl font-bold text-[#fffdf9] mt-0.5 mb-2">
+                    {latestMatchedStory.name}
+                  </h3>
+
+                  <blockquote className="my-3 p-3 rounded-2xl bg-white/5 border-l-2 border-[#ffdab9] italic text-xs sm:text-sm text-[#f7e7ce] leading-relaxed text-left">
+                    "{latestMatchedStory.storyQuote}"
+                  </blockquote>
+
+                  <p className="text-xs text-[#ffdab9]/90 italic font-serif-display mb-4">
+                    ✦ {latestMatchedStory.reflection}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setLatestMatchedStory(null)}
+                    className="w-full py-2.5 rounded-full bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-semibold text-xs tracking-wider uppercase shadow-md active:scale-95 transition-all cursor-pointer"
+                  >
+                    <span>Awesome! Continue Matching 🃏</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Victory Celebration */}
+            {memoryCompleted && (
+              <div className="mt-6 p-6 rounded-3xl bg-gradient-to-b from-amber-950/40 via-purple-950/40 to-black/60 border border-amber-300/40 text-center animate-fade-in">
+                <div className="flex justify-center gap-1 mb-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-8 h-8 ${
+                        i < getMemoryStars()
+                          ? 'text-amber-300 fill-amber-300 animate-bounce'
+                          : 'text-stone-600'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-amber-200 mb-1">
+                  Memory Challenge Mastered! 🌟
+                </h3>
+                <p className="text-xs sm:text-sm text-[#f7e7ce]/90 max-w-md mx-auto mb-4 font-light">
+                  Completed in <strong className="text-white">{moves} moves</strong> and <strong className="text-white">{gameTime} seconds</strong>!
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sound.playNavClick();
+                      triggerHaptic(15);
+                      setActiveGame('catcher');
+                    }}
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-900 font-serif-display font-bold text-xs tracking-wider uppercase shadow-lg hover:brightness-110 transition-all cursor-pointer"
+                  >
+                    <span>Play Starlight Catcher Next ⭐</span>
                   </button>
                   <button
                     type="button"
                     onClick={handleResetMemory}
-                    className="w-full sm:w-auto min-h-[40px] px-4 py-2 rounded-2xl sm:rounded-full bg-white/5 hover:bg-white/10 text-xs text-[#e6e6fa]/80 font-serif-display transition-all cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer"
                   >
                     <span>Play Again</span>
                   </button>
@@ -922,20 +1143,26 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       )}
 
       {/* ======================================================== */}
-      {/* GAME 3: STARLIGHT WISH CATCHER                           */}
+      {/* GAME 3: STARLIGHT WISH CATCHER (Mobile Dual-Controls)    */}
       {/* ======================================================== */}
       {activeGame === 'catcher' && (
-        <div className="w-full max-w-3xl flex flex-col items-center animate-fade-in">
+        <div className="w-full max-w-3xl flex flex-col items-center animate-fade-in no-swipe">
           {/* Header Stats */}
-          <div className="w-full flex items-center justify-between px-1 sm:px-2 mb-3 sm:mb-4">
-            <div className="flex items-center gap-3 sm:gap-4 text-xs font-serif-display text-[#e6e6fa]/80">
+          <div className="w-full flex items-center justify-between px-2 mb-3">
+            <div className="flex items-center gap-3 text-xs font-serif-display text-[#e6e6fa]/80">
               <div>
                 <span>Score: </span>
                 <strong className="text-amber-300 font-sans text-sm">{catcherScore}</strong>
               </div>
               <div>
+                <span>Best: </span>
+                <strong className="text-[#ffdab9] font-sans text-sm">{catcherHighScore}</strong>
+              </div>
+              <div className="flex items-center gap-1">
                 <span>Combo: </span>
-                <strong className="text-[#ffdab9] font-sans text-sm">x{combo}</strong>
+                <strong className={`font-sans text-sm ${combo >= 4 ? 'text-amber-400 animate-pulse' : 'text-emerald-400'}`}>
+                  x{combo}
+                </strong>
               </div>
             </div>
 
@@ -945,7 +1172,8 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                 onClick={stopCatcherGame}
                 className="text-xs font-serif-display text-[#e6e6fa]/70 hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <span>Pause Game</span>
+                <Pause className="w-3.5 h-3.5" />
+                <span>Pause</span>
               </button>
             ) : (
               <button
@@ -959,7 +1187,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
           </div>
 
           {/* Interactive Game Arena */}
-          <div className="w-full rounded-2xl sm:rounded-3xl bg-black/40 border border-[#f7e7ce]/25 backdrop-blur-xl relative overflow-hidden shadow-2xl p-3.5 sm:p-6 mb-8 text-center">
+          <div className="w-full rounded-2xl sm:rounded-3xl bg-black/40 border border-[#f7e7ce]/25 backdrop-blur-xl relative overflow-hidden shadow-2xl p-2.5 sm:p-6 mb-4 text-center">
             {catcherMilestone && (
               <div className="mb-3 p-2 rounded-xl bg-amber-400/20 border border-amber-300/40 text-amber-200 text-xs font-serif-display animate-pulse">
                 {catcherMilestone}
@@ -968,58 +1196,107 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
 
             {!catcherActive ? (
               <div className="py-8 sm:py-12 px-3 sm:px-4 flex flex-col items-center justify-center">
-                <Star className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 animate-spin-slow mb-3" />
-                <h3 className="font-serif-display text-lg sm:text-2xl font-bold text-[#fffdf9] mb-1.5 sm:mb-2">
+                <Star className="w-12 h-12 text-amber-300 animate-spin-slow mb-3" />
+                <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-[#fffdf9] mb-1.5">
                   Starlight Wish Catcher
                 </h3>
-                <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/70 max-w-md mb-5 sm:mb-6 italic px-2">
-                  Glide the basket across the night sky to catch falling stars, cakes, and golden gifts. Each catch chimes a serene note in harmony!
+                <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/70 max-w-md mb-5 italic px-2">
+                  Catch falling stars (⭐), cupcakes (🧁), and the legendary Doctor Paapa emblem (🩺) for maximum points!
                 </p>
                 <button
                   type="button"
                   onClick={startCatcherGame}
-                  className="w-full sm:w-auto min-h-[46px] px-6 sm:px-8 py-3 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#b76e79] via-[#c47c87] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-semibold text-xs tracking-wider uppercase shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  className="w-full sm:w-auto min-h-[46px] px-8 py-3 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c47c87] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-semibold text-xs tracking-wider uppercase shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 >
                   <span>Begin Starlight Catch ✨</span>
                 </button>
               </div>
             ) : (
-              <div>
+              <div className="flex flex-col items-center">
                 <canvas
                   ref={canvasRef}
-                  onMouseMove={handleCanvasMouseMove}
-                  onTouchMove={handleCanvasTouchMove}
-                  className="w-full h-[280px] sm:h-[360px] rounded-2xl bg-gradient-to-b from-[#16041c] via-[#210729] to-[#0f0213] border border-white/10 touch-none cursor-ew-resize shadow-inner"
+                  onTouchMove={(e) => {
+                    if (e.touches[0]) handleTouchGlide(e.touches[0].clientX);
+                  }}
+                  onMouseMove={(e) => handleTouchGlide(e.clientX)}
+                  className="w-full h-[280px] sm:h-[340px] rounded-2xl bg-gradient-to-b from-[#14031a] via-[#1f0627] to-[#0e0212] border border-white/10 touch-none shadow-inner"
                 />
-                <span className="text-[10px] sm:text-[11px] text-[#e6e6fa]/60 font-sans mt-2 block">
-                  Move mouse or slide finger left & right to control the basket
-                </span>
+
+                {/* DUAL TOUCH MOBILE CONTROLS */}
+                <div className="w-full mt-3 flex flex-col gap-2">
+                  {/* Glide Slider Bar for single-thumb precision on mobile */}
+                  <div className="w-full flex items-center gap-2 px-1">
+                    <span className="text-[10px] font-mono text-[#ffdab9]">Slide Basket:</span>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      defaultValue="50"
+                      onChange={(e) => {
+                        const canvas = canvasRef.current;
+                        if (canvas) {
+                          const w = canvas.width;
+                          basketXRef.current = (Number(e.target.value) / 100) * w;
+                        }
+                      }}
+                      className="w-full h-2 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#b76e79]"
+                    />
+                  </div>
+
+                  {/* Left / Right Big Touch Buttons on Mobile */}
+                  <div className="flex items-center justify-between gap-3 w-full">
+                    <button
+                      type="button"
+                      onTouchStart={() => (isMovingLeftRef.current = true)}
+                      onTouchEnd={() => (isMovingLeftRef.current = false)}
+                      onMouseDown={() => (isMovingLeftRef.current = true)}
+                      onMouseUp={() => (isMovingLeftRef.current = false)}
+                      className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 active:bg-[#b76e79]/50 border border-white/20 text-[#fffdf9] font-serif-display font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>◀ Move Left</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onTouchStart={() => (isMovingRightRef.current = true)}
+                      onTouchEnd={() => (isMovingRightRef.current = false)}
+                      onMouseDown={() => (isMovingRightRef.current = true)}
+                      onMouseUp={() => (isMovingRightRef.current = false)}
+                      className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 active:bg-[#b76e79]/50 border border-white/20 text-[#fffdf9] font-serif-display font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer select-none"
+                    >
+                      <span>Move Right ▶</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Guided Storybook Flow Banner */}
+      {/* Guided Next Chapter Flow */}
       {onNavigateToLetter && (
-        <div className="mt-8 sm:mt-12 w-full text-center p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#2f0c39]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#ffdab9]/35 shadow-2xl">
+        <div className="mt-6 sm:mt-10 w-full text-center p-4 sm:p-7 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#2f0c39]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#ffdab9]/35 shadow-2xl">
           <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#ffdab9] font-semibold block mb-1">
             Next Chapter in Your Birthday Journey ✦
           </span>
-          <h4 className="font-serif-display text-lg sm:text-2xl text-[#fffdf9] font-bold mb-1.5 sm:mb-2">
+          <h4 className="font-serif-display text-lg sm:text-2xl text-[#fffdf9] font-bold mb-1">
             Read The Complete Letter & 6-Phase Timeline
           </h4>
-          <p className="text-xs sm:text-sm text-[#f5ecfc] max-w-md mx-auto mb-4 sm:mb-5 leading-relaxed px-1">
-            The personal handwritten letter from your brother and friend, along with the interactive chronological milestone chronicle.
+          <p className="text-xs sm:text-sm text-[#f5ecfc] max-w-md mx-auto mb-4 italic px-1">
+            The personal handwritten letter from your brother, along with the interactive chronological milestone chronicle.
           </p>
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2">
             <button
               type="button"
               onClick={() => {
                 sound.playNavClick();
+                triggerHaptic(15);
                 onNavigateToLetter();
               }}
-              className="w-full sm:w-auto min-h-[46px] px-6 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] text-[#fffdf9] font-serif-display font-bold text-xs tracking-wider uppercase shadow-xl active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-[#ffdab9]/40"
+              className="w-full sm:w-auto min-h-[46px] px-6 py-2.5 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] text-[#fffdf9] font-serif-display font-bold text-xs tracking-wider uppercase shadow-xl active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-[#ffdab9]/40"
             >
               <span>Read Doctor Paapa's Letter 💌</span>
               <ChevronRight className="w-4 h-4" />
@@ -1028,9 +1305,10 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               type="button"
               onClick={() => {
                 sound.playNavClick();
+                triggerHaptic(15);
                 onOpenSurprise();
               }}
-              className="w-full sm:w-auto min-h-[46px] px-5 sm:px-6 py-3 rounded-2xl sm:rounded-full bg-white/10 hover:bg-white/15 border border-[#ffdab9]/30 text-[#ffdab9] text-xs font-serif-display font-semibold transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto min-h-[46px] px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 border border-[#ffdab9]/30 text-[#ffdab9] text-xs font-serif-display font-semibold transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
             >
               <Cake className="w-4 h-4 text-[#ffdab9]" />
               <span>Cut 3D Birthday Cake 🎂</span>
