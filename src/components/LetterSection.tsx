@@ -106,28 +106,28 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
   const currentTimelineItem = config.timeline[selectedTimelineIndex] || config.timeline[0];
 
   return (
-    <section className="relative py-10 md:py-16 px-4 max-w-4xl mx-auto animate-fade-in">
+    <section className="relative py-6 sm:py-12 md:py-16 px-3 sm:px-4 max-w-4xl mx-auto animate-fade-in">
       {/* Section Header */}
-      <div className="text-center mb-8 md:mb-10">
-        <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
-          <Mail className="w-3.5 h-3.5" />
+      <div className="text-center mb-6 sm:mb-8 md:mb-10">
+        <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-1.5 sm:mb-2">
+          <Mail className="w-3.5 h-3.5 text-[#ffdab9]" />
           Words From The Heart & Memory Chronicles
         </span>
-        <h2 className="font-script text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
+        <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
           A Letter For {config.name}
         </h2>
-        <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/75 max-w-lg mx-auto mt-1 italic">
+        <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/75 max-w-lg mx-auto mt-1 italic px-2">
           Dedicated to Doctor Paapa: our journey from quiet school childhood to today's sacred promise.
         </p>
 
         {/* View Mode Switcher Pills */}
-        <div className="inline-flex items-center p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mt-6 shadow-md">
+        <div className="inline-flex items-center p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mt-4 sm:mt-6 shadow-md gap-1">
           <button
             type="button"
             onClick={() => handleSwitchMode('letter')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-serif-display font-medium transition-all duration-300 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-serif-display font-medium transition-all duration-300 cursor-pointer ${
               viewMode === 'letter'
-                ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30'
+                ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30 font-semibold'
                 : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
             }`}
           >
@@ -138,14 +138,14 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
           <button
             type="button"
             onClick={() => handleSwitchMode('timeline')}
-            className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-serif-display font-medium transition-all duration-300 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-serif-display font-medium transition-all duration-300 cursor-pointer ${
               viewMode === 'timeline'
-                ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30'
+                ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-md border border-[#f7e7ce]/30 font-semibold'
                 : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
             }`}
           >
             <Clock className="w-3.5 h-3.5" />
-            <span>Extracted Timeline (6 Chapters)</span>
+            <span>Timeline Chapters</span>
           </button>
         </div>
       </div>
@@ -156,26 +156,26 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
       {viewMode === 'letter' && (
         <div className="animate-fade-in">
           {/* Parchment / Glass Hybrid Letter Card */}
-          <div className="relative rounded-3xl p-7 sm:p-11 md:p-14 parchment-sheet text-[#2c0a32] overflow-hidden shadow-2xl">
+          <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-9 md:p-14 parchment-sheet text-[#2c0a32] overflow-hidden shadow-2xl">
             {/* Subtle deckled border & gold foil inner hairline */}
-            <div className="absolute inset-3 rounded-2xl border border-[#b76e79]/20 pointer-events-none" />
+            <div className="absolute inset-2 sm:inset-3 rounded-xl sm:rounded-2xl border border-[#b76e79]/20 pointer-events-none" />
 
             {/* Vintage stationery watermark */}
             <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-[#b76e79]/10 via-[#ffdab9]/10 to-transparent pointer-events-none rounded-bl-full" />
             <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-[#ffdab9]/15 pointer-events-none rounded-tr-full" />
 
             {/* Letter Top Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-6 mb-6 border-b border-[#2c0a32]/10 text-xs font-serif-display text-[#2c0a32]/75">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#b76e79]" />
-                <span className="tracking-[0.2em] uppercase font-medium">Personal & Sacred · For Doctor Paapa</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-4 sm:pb-6 mb-4 sm:mb-6 border-b border-[#2c0a32]/10 text-xs font-serif-display text-[#2c0a32]/75">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#b76e79] shrink-0" />
+                <span className="tracking-[0.12em] sm:tracking-[0.2em] uppercase font-medium text-[10px] sm:text-xs">For Doctor Paapa</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={handleCopyLetter}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-xs transition-all cursor-pointer font-medium"
+                  className="flex items-center gap-1 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-[11px] sm:text-xs transition-all cursor-pointer font-medium active:scale-95"
                   title="Copy letter to clipboard"
                 >
                   {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#b76e79]" />}
@@ -186,57 +186,57 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
                   <button
                     type="button"
                     onClick={handleSkipToEnd}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-xs transition-all cursor-pointer font-medium"
+                    className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-[11px] sm:text-xs transition-all cursor-pointer font-medium active:scale-95"
                   >
                     <FastForward className="w-3.5 h-3.5 text-[#b76e79]" />
-                    <span>Read Instantly</span>
+                    <span>Read All</span>
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleRestart}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-xs transition-all cursor-pointer font-medium"
+                    className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#2c0a32]/5 hover:bg-[#2c0a32]/10 text-[#2c0a32] font-serif-display text-[11px] sm:text-xs transition-all cursor-pointer font-medium active:scale-95"
                   >
                     <RotateCcw className="w-3.5 h-3.5 text-[#b76e79]" />
-                    <span>Replay Typing</span>
+                    <span>Replay</span>
                   </button>
                 )}
               </div>
             </div>
 
             {/* Letter Salutation */}
-            <div className="mb-6">
-              <h3 className="font-script text-4xl sm:text-5xl text-[#3d1145] font-bold tracking-wide">
+            <div className="mb-4 sm:mb-6">
+              <h3 className="font-script text-3xl sm:text-5xl text-[#3d1145] font-bold tracking-wide">
                 {config.letterGreeting}
               </h3>
             </div>
 
             {/* Typewritten Message Body with optimal measure and line-height */}
-            <div className="font-serif-display text-base sm:text-lg md:text-xl leading-[1.85] text-[#2c0a32]/95 whitespace-pre-line tracking-normal min-h-[240px] font-normal">
+            <div className="font-serif-display text-sm sm:text-lg md:text-xl leading-[1.8] text-[#2c0a32]/95 whitespace-pre-line tracking-normal min-h-[200px] sm:min-h-[240px] font-normal">
               {fullText.slice(0, displayedLength)}
               {!isTypingComplete && (
-                <span className="inline-block w-2.5 h-6 bg-[#b76e79] ml-1.5 animate-cursor align-middle" />
+                <span className="inline-block w-2 sm:w-2.5 h-5 sm:h-6 bg-[#b76e79] ml-1 sm:ml-1.5 animate-cursor align-middle" />
               )}
             </div>
 
             {/* Signoff with Monogram Wax Seal stamp */}
-            {displayedLength > 200 && (
-              <div className="mt-10 pt-6 border-t border-[#2c0a32]/10 flex flex-wrap items-center justify-between gap-4">
+            {displayedLength > 150 && (
+              <div className="mt-8 sm:mt-10 pt-4 sm:pt-6 border-t border-[#2c0a32]/10 flex flex-wrap items-center justify-between gap-3">
                 {/* Monogram Seal Stamp */}
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#852a3a] to-[#4e111d] border border-[#ffdab9]/60 flex items-center justify-center text-white shadow-md">
-                    <span className="font-serif-display font-bold text-lg text-[#ffdab9]">M</span>
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#852a3a] to-[#4e111d] border border-[#ffdab9]/60 flex items-center justify-center text-white shadow-md shrink-0">
+                    <span className="font-serif-display font-bold text-base sm:text-lg text-[#ffdab9]">M</span>
                   </div>
-                  <div className="text-[11px] font-serif-display italic text-[#2c0a32]/60">
+                  <div className="text-[10px] sm:text-[11px] font-serif-display italic text-[#2c0a32]/60">
                     Sealed with lifelong loyalty & respect
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end">
-                  <span className="font-serif-display italic text-sm text-[#2c0a32]/75 font-light">
+                <div className="flex flex-col items-start sm:items-end">
+                  <span className="font-serif-display italic text-xs sm:text-sm text-[#2c0a32]/75 font-light">
                     {config.letterSignoff}
                   </span>
-                  <span className="font-script text-3xl sm:text-4xl text-[#7c2838] mt-1 font-bold">
+                  <span className="font-script text-2xl sm:text-4xl text-[#7c2838] mt-0.5 sm:mt-1 font-bold">
                     Your Brother & Friend Forever ✨
                   </span>
                 </div>
@@ -245,16 +245,16 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
           </div>
 
           {/* Quick Bridge to Extracted Milestones */}
-          <div className="mt-8 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#ffdab9]/10 border border-[#ffdab9]/30 flex items-center justify-center shrink-0">
-                <Clock className="w-5 h-5 text-[#ffdab9]" />
+          <div className="mt-6 sm:mt-8 p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#ffdab9]/10 border border-[#ffdab9]/30 flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffdab9]" />
               </div>
               <div className="text-left">
-                <h4 className="font-serif-display text-sm font-semibold text-[#fffdf9]">
+                <h4 className="font-serif-display text-xs sm:text-sm font-semibold text-[#fffdf9]">
                   Explore The 6 Extracted Journey Milestones
                 </h4>
-                <p className="text-xs text-[#e6e6fa]/70">
+                <p className="text-[11px] sm:text-xs text-[#e6e6fa]/70">
                   Step through childhood, breaking shackles, school days, safe haven, and the sacred promise.
                 </p>
               </div>
@@ -263,7 +263,7 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
             <button
               type="button"
               onClick={() => handleSwitchMode('timeline')}
-              className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/15 text-[#ffdab9] font-serif-display text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 border border-[#ffdab9]/30"
+              className="w-full sm:w-auto min-h-[40px] px-4 sm:px-5 py-2 rounded-full bg-white/10 hover:bg-white/15 text-[#ffdab9] font-serif-display text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 border border-[#ffdab9]/30"
             >
               <span>View Story Timeline</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -462,9 +462,9 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
         </div>
       )}
 
-      {/* Secret Surprise Reveal Trigger (Unlocks once typewriter finishes or if completed) */}
-      <div className="mt-12 text-center">
-        <p className="font-script text-2xl sm:text-3xl text-[#ffdab9] mb-3">
+      {/* Secret Surprise Reveal Trigger */}
+      <div className="mt-8 sm:mt-12 text-center w-full max-w-md mx-auto px-2">
+        <p className="font-script text-xl sm:text-3xl text-[#ffdab9] mb-2.5 sm:mb-3">
           And now, for your special moment…
         </p>
 
@@ -474,11 +474,11 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
             sound.playNavClick();
             onOpenSurprise();
           }}
-          className="relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c47c87] hover:to-[#9b4957] text-[#fffdf9] font-serif-display text-base sm:text-lg font-semibold tracking-wider uppercase shadow-2xl shadow-[#b76e79]/50 border border-[#f7e7ce]/40 transition-all duration-300 transform hover:scale-105 active:scale-95 animate-pulse cursor-pointer"
+          className="w-full sm:w-auto min-h-[48px] inline-flex items-center justify-center gap-2 sm:gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c47c87] hover:to-[#9b4957] text-[#fffdf9] font-serif-display text-xs sm:text-base font-semibold tracking-wider uppercase shadow-2xl shadow-[#b76e79]/50 border border-[#f7e7ce]/40 transition-all duration-300 transform active:scale-95 animate-pulse cursor-pointer"
         >
-          <Gift className="w-5 h-5 text-[#ffdab9]" />
+          <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffdab9] shrink-0" />
           <span>UNLOCK SURPRISE & CAKE 🎂</span>
-          <Sparkles className="w-5 h-5 text-[#ffdab9]" />
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#ffdab9] shrink-0" />
         </button>
       </div>
     </section>
