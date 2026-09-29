@@ -1,9 +1,26 @@
 /**
  * Centralized Birthday Configuration for Meera
  * 
- * You can personalize the entire website by modifying this configuration object.
- * As required, unsupplied personal details use clearly marked placeholders.
+ * Personalized with uploaded memories, Tamil brother-sister & friendship soundtracks,
+ * and cinematic greeting video.
  */
+
+// Import Personal Photo Memories (1 to 6)
+import img1 from './1.jpg';
+import img2 from './2.jpeg';
+import img3 from './3.jpg';
+import img4 from './4.jpeg';
+import img5 from './5.jpeg';
+import img6 from './6.jpeg';
+
+// Import Audio Soundtracks
+import trackUnkoodave from './Unkoodave Porakkanum (Brothers-Version) - BestTamilan.mp3';
+import trackThozhi from './Thozhi-MassTamilan.fm.mp3';
+import trackAanandhaYazhai from './Aanandha Yazhai - BestTamilan.mp3';
+import trackKalaivaniyo from './Kalaivaniyo Raniyo - BestTamilan.mp3';
+
+// Import Personal Greeting Video
+import videoGreeting from './VN20250917_105707.mp4';
 
 export interface MemoryItem {
   id: number;
@@ -29,10 +46,10 @@ export interface AudioTrackItem {
   id: string;
   title: string;
   artist: string;
-  section: string; // e.g., 'Acoustic Piano', 'Music Box', 'Cozy Lofi', 'Celebration'
+  section: string; // e.g., 'Brother\'s Promise', 'Friendship Sanctuary', 'Childhood Nostalgia', 'Doctor Paapa Radiance'
   synthType: 'piano' | 'musicbox' | 'lofi' | 'celebration';
   duration: number; // in seconds
-  source: string; // URL or synthesized procedural melody
+  source: string; // MP3 URL or synthesized procedural melody
   mood: string;
   description: string;
 }
@@ -53,7 +70,7 @@ export interface BirthdayConfig {
   song: {
     title: string;
     artist: string;
-    source: string; // URL or synthesized ambient melody
+    source: string; // Audio track source
     duration: number; // in seconds
   };
   soundtracks: AudioTrackItem[];
@@ -62,7 +79,7 @@ export interface BirthdayConfig {
   video: {
     title: string;
     caption: string;
-    source: string; // URL or placeholder
+    source: string;
     poster?: string;
   };
   theme: {
@@ -83,8 +100,7 @@ export const birthdayConfig: BirthdayConfig = {
   
   subtitle: "Seeing you smile today while cutting your cake fills my heart with joy ✨",
 
-  // Centralized friendship date (YYYY-MM-DD) for the live counter
-  friendshipDate: "2021-08-14", // [INSERT FRIENDSHIP DATE] - Editable anytime
+  friendshipDate: "2021-08-14",
 
   birthdayDate: "2026-09-29",
 
@@ -96,11 +112,9 @@ export const birthdayConfig: BirthdayConfig = {
 
 As a friend, I got to know your name when we were children. Though I had never seen you up close, we traveled together as the years went by. I always wanted to speak with you initially, but I had that fear of approaching you. Yet once we finally connected, it felt like I had known you for ages. Your kindness and warmth are truly inspiring.
 
-Remember the moment that we threw off the shackles? From then on, you held a special place in my heart. I really want to accept the fact that I never followed your words in school days, but I tried my level best to follow your words. Now you are with me to guide me to be a better person.
+Remember the moment that we threw off the shackles? From then on, you held a special place in my heart. I really want to accept the fact that I never followed your words in school days, but I tried my level best to follow your words. Now you are with me to guide me to be a better person. We both made a lot of decisions in our school days to improve our mental strength, but now you have grown so mentally strong that you can guide and handle any situation. I am proud to be your friend.
 
-In school days, we had a lot of restrictions. If it goes the other way, I will be a better person and grow along with you, and I assure you that my presence with you will always make a difference in our mental strength. I am really proud to be your brother and friend.
-
-You have given me a space to be myself—which a girl who never spoke to boys in school would never give to anyone blindly. But you gave it to me, and I valued it more than my self-respect. You never judged me by my behavior and healed me with your words and actions.
+You have given me a space to be myself, which a girl who never spoke to boys in school would never give blindly. I valued it more than my self-respect. You never judged me by my behavior and healed me with your kind words and actions.
 
 I swear that your hard work and dedication will take you to great heights in your career and life. Keep shining bright and never forget that you are loved and appreciated by so many people around you.
 
@@ -119,63 +133,63 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
   surpriseWish: "I promise to stay connected to you beyond restrictions and whatever the situation is. I will protect you as my eyes, keep difficulties away, and always remain just a call away. Keep shining bright!",
 
   song: {
-    title: "Golden Hour Serenade",
-    artist: "Acoustic Piano Dedication for Doctor Paapa",
-    source: "", // Synthesized piano melody
-    duration: 184,
+    title: "Unkoodave Porakkanum (Brother's Version)",
+    artist: "Namma Veettu Pillai • Brotherly Bond",
+    source: trackUnkoodave,
+    duration: 268,
   },
 
   soundtracks: [
     {
-      id: "track-piano",
-      title: "Golden Hour Memories",
-      artist: "Acoustic Piano & Soft Strings",
-      section: "Acoustic Piano",
-      synthType: "piano",
-      duration: 196,
-      source: "",
-      mood: "Nostalgic & Tender",
-      description: "Serene acoustic piano arpeggios honoring the journey from childhood to today.",
-    },
-    {
-      id: "track-musicbox",
-      title: "Starlight Celesta Box",
-      artist: "Crystal Music Box & Chimes",
-      section: "Music Box & Lullaby",
-      synthType: "musicbox",
-      duration: 168,
-      source: "",
-      mood: "Dreamy & Magical",
-      description: "Pure, crystalline bells echoing childhood memories and the moment we threw off the shackles.",
-    },
-    {
-      id: "track-lofi",
-      title: "Late Night Cafe Breeze",
-      artist: "Warm Lofi & Velvet Rhodes",
-      section: "Cozy Lofi Vibes",
-      synthType: "lofi",
-      duration: 210,
-      source: "",
-      mood: "Relaxing & Intimate",
-      description: "Comforting mellow chords dedicated to the safe space and healing words you gave me.",
-    },
-    {
-      id: "track-celebration",
-      title: "Doctor Paapa's Radiance",
-      artist: "Festive Harmonies & Fanfare",
-      section: "Celebration & Joy",
+      id: "track-unkoodave",
+      title: "Unkoodave Porakkanum (Brother's Version)",
+      artist: "Namma Veettu Pillai • Sid Sriram",
+      section: "Brother's Promise",
       synthType: "celebration",
-      duration: 154,
-      source: "",
-      mood: "Uplifting & Festive",
-      description: "Bright, sparkling melodies celebrating Doctor Paapa's hard work, dedication, and golden future.",
+      duration: 268,
+      source: trackUnkoodave,
+      mood: "Unconditional Bond & Protection",
+      description: "Dedicated to the sacred vow: 'I will protect you as my eyes, stay connected beyond restrictions, and keep away difficulties.'",
+    },
+    {
+      id: "track-thozhi",
+      title: "Thozhi",
+      artist: "Hey Sinamika • Pradeep Kumar",
+      section: "Soul Connection",
+      synthType: "lofi",
+      duration: 218,
+      source: trackThozhi,
+      mood: "Safe Haven & Warmth",
+      description: "Echoing the moment we threw off the shackles and you gave me an unconditional space to be myself without judgment.",
+    },
+    {
+      id: "track-aanandha-yazhai",
+      title: "Aanandha Yazhai",
+      artist: "Thangameenkal • Sriram Parthasarathy",
+      section: "Childhood Nostalgia",
+      synthType: "piano",
+      duration: 225,
+      source: trackAanandhaYazhai,
+      mood: "Nostalgic Tears of Joy",
+      description: "Traveling together from silent childhood school days to seeing you shine brilliantly today as Doctor Paapa.",
+    },
+    {
+      id: "track-kalaivaniyo",
+      title: "Kalaivaniyo Raniyo",
+      artist: "Classic Melodic Tribute",
+      section: "Doctor Paapa's Radiance",
+      synthType: "musicbox",
+      duration: 315,
+      source: trackKalaivaniyo,
+      mood: "Graceful, Royal & Celebratory",
+      description: "A joyous musical tribute celebrating your tireless hard work, compassionate heart, and bright future ahead.",
     },
   ],
 
   memories: [
     {
       id: 1,
-      image: "",
+      image: img1,
       title: "01 / 06 — That Radiant Cake Smile",
       caption: "Seeing you smile today while cutting your cake filled my heart with so much joy.",
       date: "Today",
@@ -183,7 +197,7 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
     },
     {
       id: 2,
-      image: "",
+      image: img2,
       title: "02 / 06 — Doctor Paapa's Dedication",
       caption: "Your tireless hard work and compassion that will take you to extraordinary heights.",
       date: "Present",
@@ -191,7 +205,7 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
     },
     {
       id: 3,
-      image: "",
+      image: img3,
       title: "03 / 06 — Throwing Off The Shackles",
       caption: "The unforgettable moment we finally connected, feeling like I had known you for ages.",
       date: "School Days",
@@ -199,7 +213,7 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
     },
     {
       id: 4,
-      image: "",
+      image: img4,
       title: "04 / 06 — A Safe Haven Beyond Judgment",
       caption: "A space to be myself that healed me through your kind words and actions.",
       date: "Always",
@@ -207,7 +221,7 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
     },
     {
       id: 5,
-      image: "",
+      image: img5,
       title: "05 / 06 — Growing Stronger Together",
       caption: "Guiding me to be a better person, building our mental strength side by side.",
       date: "Lifelong",
@@ -215,7 +229,7 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
     },
     {
       id: 6,
-      image: "",
+      image: img6,
       title: "06 / 06 — Just A Phone Call Away",
       caption: "Protected like my own eyes, beyond any situation or restriction, forever.",
       date: "Forever",
@@ -282,9 +296,10 @@ Finally, Happy birthday once again, Doctor paapa! 🩺✨🎂`,
   ],
 
   video: {
-    title: "A Special Message For Doctor Paapa",
-    caption: "A heartfelt tribute celebrating our journey from childhood school days to today.",
-    source: "", // Placeholder - can be an MP4 URL or file
+    title: "A Special Birthday Video for Doctor Paapa",
+    caption: "A heartfelt cinematic tribute celebrating our journey from childhood school days to today.",
+    source: videoGreeting,
+    poster: img1,
   },
 
   theme: {
