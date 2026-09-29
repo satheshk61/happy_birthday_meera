@@ -1,5 +1,22 @@
-import React, { useState, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles, Calendar, Heart, Camera, Upload, SlidersHorizontal, Check, Download, CheckCircle2, LayoutGrid, Image as ImageIcon } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Sparkles, 
+  Heart, 
+  Camera, 
+  Upload, 
+  SlidersHorizontal, 
+  Check, 
+  Download, 
+  CheckCircle2, 
+  LayoutGrid, 
+  Image as ImageIcon, 
+  Maximize2, 
+  X,
+  Scan,
+  Minimize2
+} from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { MemoryItem, TimelineItem } from '../birthdayConfig';
 import { sound } from '../utils/audio';
@@ -71,6 +88,8 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
   const [customImages, setCustomImages] = useState<{ [id: number]: string }>({});
   const [likes, setLikes] = useState<{ [id: number]: number }>({ 1: 12, 2: 18, 3: 15, 4: 24, 5: 19, 6: 32 });
   const [viewMode, setViewMode] = useState<'studio' | 'lookbook'>('studio');
+  const [imageFitMode, setImageFitMode] = useState<'contain' | 'cover'>('contain');
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -82,6 +101,22 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
 
   const currentMemory = memories[currentIndex] || memories[0];
   const activeFilter = PHOTO_FILTERS.find((f) => f.id === selectedFilterId) || PHOTO_FILTERS[0];
+  const displayImage = customImages[currentMemory.id] || currentMemory.image;
+
+  // Keyboard navigation for carousel & lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, memories.length]);
 
   const handlePrev = () => {
     sound.playNavClick();
@@ -121,6 +156,8 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
         ...prev,
         [currentMemory.id]: url,
       }));
+      setToastMessage('Photo updated! 📸');
+      setTimeout(() => setToastMessage(null), 3000);
     }
   };
 
@@ -170,7 +207,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
       link.click();
 
       triggerTapSparkle(window.innerWidth / 2, window.innerHeight / 2);
-      setToastMessage('Best photo snapshot saved to your device! 📸');
+      setToastMessage('Full photo snapshot saved to your device! 📸');
       setTimeout(() => {
         setToastMessage(null);
       }, 3500);
@@ -185,32 +222,30 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
     }
   };
 
-  const displayImage = customImages[currentMemory.id] || currentMemory.image;
-
   return (
-    <section className="relative py-12 md:py-20 px-4 max-w-5xl mx-auto">
+    <section className="relative py-8 sm:py-16 md:py-20 px-3 sm:px-4 max-w-5xl mx-auto">
       {/* Section Header */}
-      <div className="text-center mb-8 md:mb-12">
-        <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
+      <div className="text-center mb-6 sm:mb-10 md:mb-12">
+        <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-1.5 sm:mb-2">
           <Camera className="w-3.5 h-3.5 text-[#ffdab9]" />
           Editorial Portrait Lookbook · Dedicated to Meera
         </span>
-        <h2 className="font-script text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
+        <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
           Best Photos of Her
         </h2>
-        <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-2 italic">
+        <p className="font-serif-display text-xs sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-1 sm:mt-2 italic px-2">
           A handpicked visual collection capturing her radiant grace, unforgettable laughter, and timeless charm.
         </p>
 
         {/* View Mode Switcher: Studio Keepsake vs Lookbook Grid */}
-        <div className="inline-flex items-center p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mt-6 shadow-md">
+        <div className="inline-flex items-center p-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mt-4 sm:mt-6 shadow-md">
           <button
             type="button"
             onClick={() => {
               sound.playNavClick();
               setViewMode('studio');
             }}
-            className={`px-4 py-1.5 rounded-full text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer ${
               viewMode === 'studio'
                 ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-sm font-semibold'
                 : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
@@ -226,7 +261,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
               sound.playNavClick();
               setViewMode('lookbook');
             }}
-            className={`px-4 py-1.5 rounded-full text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer ${
               viewMode === 'lookbook'
                 ? 'bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] shadow-sm font-semibold'
                 : 'text-[#e6e6fa]/70 hover:text-[#fffdf9]'
@@ -256,7 +291,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
       {viewMode === 'studio' && (
         <div
           ref={cardRef}
-          className="relative glass-panel rounded-3xl p-4 sm:p-8 md:p-10 mb-16 shadow-2xl overflow-hidden border border-[#f7e7ce]/20 animate-fade-in"
+          className="relative glass-panel rounded-2xl sm:rounded-3xl p-3 sm:p-6 md:p-8 mb-12 sm:mb-16 shadow-2xl overflow-hidden border border-[#f7e7ce]/20 animate-fade-in"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -270,8 +305,8 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
           <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#b76e79]/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-[#ffdab9]/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Header inside carousel: Metadata & Snapshot Action */}
-          <div className="flex items-center justify-between mb-4 md:mb-6 text-xs sm:text-sm font-serif-display text-[#f7e7ce]/80">
+          {/* Header inside carousel: Metadata, Fit Mode, Fullscreen & Snapshot Action */}
+          <div className="flex items-center justify-between mb-3 md:mb-5 text-xs sm:text-sm font-serif-display text-[#f7e7ce]/80">
             <div className="flex items-center gap-2">
               <span className="font-mono tabular-nums text-base sm:text-lg font-bold text-[#ffdab9]">
                 {String(currentIndex + 1).padStart(2, '0')} / {String(memories.length).padStart(2, '0')}
@@ -290,22 +325,58 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
               )}
             </div>
 
-            <div className="hide-on-snapshot flex items-center gap-2">
+            <div className="hide-on-snapshot flex items-center gap-1.5 sm:gap-2">
+              {/* Dynamic Fit Mode Toggle */}
+              {displayImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playNavClick();
+                    setImageFitMode((prev) => (prev === 'contain' ? 'cover' : 'contain'));
+                  }}
+                  title={imageFitMode === 'contain' ? 'Current: Full Image (Fit). Click for Cinematic Crop' : 'Current: Cinematic Fill. Click for Full Image (Fit)'}
+                  className="px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-[#ffdab9] text-xs font-serif-display flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Scan className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">
+                    {imageFitMode === 'contain' ? 'Full Image' : 'Fill'}
+                  </span>
+                </button>
+              )}
+
+              {/* Fullscreen Lightbox Button */}
+              {displayImage && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    sound.playNavClick();
+                    setIsLightboxOpen(true);
+                  }}
+                  title="Expand to Fullscreen View"
+                  className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-[#ffdab9] text-xs font-serif-display flex items-center gap-1 transition-all cursor-pointer"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Expand</span>
+                </button>
+              )}
+
+              {/* Like Button */}
               <button
                 type="button"
                 onClick={(e) => handleLikePhoto(currentMemory.id, e)}
-                className="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-[#b76e79]/40 text-[#ffdab9] text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer active:scale-90"
+                className="px-2.5 sm:px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-[#b76e79]/40 text-[#ffdab9] text-xs font-serif-display flex items-center gap-1.5 transition-all cursor-pointer active:scale-90"
               >
                 <Heart className="w-3.5 h-3.5 fill-[#b76e79] text-[#b76e79]" />
                 <span>{likes[currentMemory.id] || 0}</span>
               </button>
 
+              {/* Download Photo Souvenir */}
               <button
                 type="button"
                 onClick={handleTakeSnapshot}
                 disabled={isCapturing}
                 title="Download this photo souvenir"
-                className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#b76e79] to-[#914d57] hover:from-[#c47c87] hover:to-[#a4535e] text-[#fffdf9] text-xs font-serif-display font-medium flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
+                className="px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#b76e79] to-[#914d57] hover:from-[#c47c87] hover:to-[#a4535e] text-[#fffdf9] text-xs font-serif-display font-medium flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Save Photo</span>
@@ -313,15 +384,35 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
             </div>
           </div>
 
-          {/* Photo Frame Container */}
-          <div className="relative aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] w-full rounded-2xl overflow-hidden bg-black/40 border border-[#f7e7ce]/25 shadow-2xl flex items-center justify-center group">
+          {/* Dynamic Photo Stage: Scales to natural aspect ratio and displays full uncropped image across all devices */}
+          <div className="relative w-full min-h-[320px] sm:min-h-[440px] md:min-h-[520px] max-h-[76vh] md:max-h-[640px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#0e0212] border border-[#f7e7ce]/25 shadow-2xl flex items-center justify-center group p-1.5 sm:p-4">
             {displayImage ? (
-              <img
-                src={displayImage}
-                alt={`Best photo of Meera: ${currentMemory.title}`}
-                className="w-full h-full object-cover transition-all duration-700"
-                style={{ filter: activeFilter.cssFilter }}
-              />
+              <>
+                {/* Ambient dynamic blurred background matching the photo */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-35 scale-110 pointer-events-none transition-all duration-700"
+                  style={{
+                    backgroundImage: `url(${displayImage})`,
+                    filter: `${activeFilter.cssFilter} blur(40px)`,
+                  }}
+                />
+
+                {/* Subtle dark vignette overlay for depth */}
+                <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+
+                {/* The Full Uncropped Image with Dynamic Fit */}
+                <img
+                  src={displayImage}
+                  alt={`Best photo of Meera: ${currentMemory.title}`}
+                  onClick={() => setIsLightboxOpen(true)}
+                  className={`relative z-10 w-auto max-w-full rounded-xl sm:rounded-2xl shadow-2xl transition-all duration-500 cursor-zoom-in select-none ${
+                    imageFitMode === 'contain'
+                      ? 'max-h-[64vh] sm:max-h-[68vh] md:max-h-[580px] object-contain'
+                      : 'w-full h-full object-cover max-h-[76vh]'
+                  }`}
+                  style={{ filter: activeFilter.cssFilter }}
+                />
+              </>
             ) : (
               /* High-End Editorial Art Canvas Placeholder */
               <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#2a0d33] via-[#1a0720] to-[#0d0211] relative">
@@ -364,13 +455,13 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
             {/* Aesthetic Filter Overlay Layer */}
             {activeFilter.overlayClass && (
               <div
-                className={`absolute inset-0 pointer-events-none transition-all duration-500 ${activeFilter.overlayClass}`}
+                className={`absolute inset-0 pointer-events-none transition-all duration-500 z-10 ${activeFilter.overlayClass}`}
               />
             )}
 
             {/* Active Filter Badge */}
             {activeFilter.id !== 'normal' && (
-              <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/15 text-[11px] font-serif-display text-[#ffdab9] pointer-events-none flex items-center gap-1 shadow-sm">
+              <div className="absolute bottom-3 left-3 z-20 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/15 text-[11px] font-serif-display text-[#ffdab9] pointer-events-none flex items-center gap-1 shadow-sm">
                 <Sparkles className="w-3 h-3 text-[#ffdab9]" />
                 <span>{activeFilter.name} Tone</span>
               </div>
@@ -382,18 +473,18 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title="Replace photo"
-                className="hide-on-snapshot absolute top-3 right-3 p-2 rounded-full bg-black/60 hover:bg-black/80 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer"
+                className="hide-on-snapshot absolute top-3 right-3 z-20 p-2 rounded-full bg-black/60 hover:bg-black/80 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer"
               >
                 <Upload className="w-4 h-4" />
               </button>
             )}
 
-            {/* Side arrow buttons */}
+            {/* Side navigation arrow buttons */}
             <button
               type="button"
               onClick={handlePrev}
               aria-label="Previous photo"
-              className="hide-on-snapshot absolute left-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer active:scale-95"
+              className="hide-on-snapshot absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-[#fffdf9] border border-white/25 backdrop-blur-md transition-all cursor-pointer active:scale-95 shadow-lg"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
@@ -402,7 +493,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
               type="button"
               onClick={handleNext}
               aria-label="Next photo"
-              className="hide-on-snapshot absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer active:scale-95"
+              className="hide-on-snapshot absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-black/50 hover:bg-black/80 text-[#fffdf9] border border-white/25 backdrop-blur-md transition-all cursor-pointer active:scale-95 shadow-lg"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
@@ -488,10 +579,11 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
       )}
 
       {/* ======================================================== */}
-      {/* VIEW MODE 2: EDITORIAL PHOTO LOOKBOOK GRID                */}
+      {/* VIEW MODE 2: EDITORIAL PHOTO LOOKBOOK MASONRY            */}
+      {/* Dynamic natural aspect ratio for every photo             */}
       {/* ======================================================== */}
       {viewMode === 'lookbook' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-16 animate-fade-in">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5 mb-16 animate-fade-in">
           {memories.map((photo, idx) => {
             const imgUrl = customImages[photo.id] || photo.image;
             return (
@@ -502,18 +594,19 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
                   setCurrentIndex(idx);
                   setViewMode('studio');
                 }}
-                className="group relative rounded-3xl bg-black/30 border border-[#f7e7ce]/20 p-4 backdrop-blur-xl shadow-xl hover:border-[#ffdab9]/50 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col"
+                className="break-inside-avoid group relative rounded-3xl bg-black/35 border border-[#f7e7ce]/20 p-3 sm:p-4 backdrop-blur-xl shadow-xl hover:border-[#ffdab9]/50 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col mb-5"
               >
-                {/* Photo container */}
-                <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-[#2a0d33] via-[#1a0720] to-[#0d0211] border border-white/10 mb-3 relative flex items-center justify-center">
+                {/* Photo container - 100% Full natural aspect ratio */}
+                <div className="relative w-full rounded-2xl overflow-hidden bg-black/40 border border-white/10 mb-3 flex items-center justify-center">
                   {imgUrl ? (
                     <img
                       src={imgUrl}
                       alt={photo.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-auto object-contain rounded-xl group-hover:scale-[1.02] transition-transform duration-500 select-none"
+                      loading="lazy"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center p-3 text-center">
+                    <div className="flex flex-col items-center justify-center p-8 text-center min-h-[220px]">
                       <Camera className="w-8 h-8 text-[#ffdab9]/70 mb-2 group-hover:scale-110 transition-transform" />
                       <span className="text-[10px] font-serif-display uppercase tracking-widest text-[#ffdab9]">
                         {photo.tag || 'Portrait'}
@@ -530,7 +623,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
                   <button
                     type="button"
                     onClick={(e) => handleLikePhoto(photo.id, e)}
-                    className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 text-[10px] font-serif-display text-[#fffdf9] flex items-center gap-1 transition-all"
+                    className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md border border-white/15 text-[10px] font-serif-display text-[#fffdf9] flex items-center gap-1 transition-all z-10"
                   >
                     <Heart className="w-3 h-3 text-[#b76e79] fill-[#b76e79]" />
                     <span>{likes[photo.id] || 0}</span>
@@ -540,7 +633,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
                 {/* Details */}
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="font-serif-display text-sm sm:text-base font-bold text-[#fffdf9] mb-1 line-clamp-1">
+                    <h4 className="font-serif-display text-sm sm:text-base font-bold text-[#fffdf9] mb-1">
                       {photo.title}
                     </h4>
                     <p className="text-xs text-[#e6e6fa]/70 font-sans italic line-clamp-2">
@@ -559,28 +652,97 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
         </div>
       )}
 
+      {/* ======================================================== */}
+      {/* FULLSCREEN LIGHTBOX MODAL (Zero Cropping, Full Immersion) */}
+      {/* ======================================================== */}
+      {isLightboxOpen && displayImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fullscreen photo view"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-3 sm:p-6 animate-fade-in"
+          onClick={() => setIsLightboxOpen(false)}
+        >
+          {/* Close Button */}
+          <button
+            type="button"
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close fullscreen view"
+            className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Previous / Next Lightbox Controls */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrev();
+            }}
+            aria-label="Previous photo"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-white/20 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
+            aria-label="Next photo"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 hover:bg-white/20 text-[#fffdf9] border border-white/20 backdrop-blur-md transition-all cursor-pointer"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Centered Full Natural Aspect Ratio Image */}
+          <div
+            className="relative max-w-full max-h-[88vh] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={displayImage}
+              alt={currentMemory.title}
+              className="max-w-[94vw] max-h-[82vh] w-auto h-auto object-contain rounded-2xl shadow-2xl"
+              style={{ filter: activeFilter.cssFilter }}
+            />
+            <div className="mt-3 text-center px-4 max-w-lg">
+              <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9]">
+                {currentMemory.title}
+              </span>
+              <p className="text-xs sm:text-sm text-[#f7e7ce]/80 italic mt-0.5">
+                "{currentMemory.caption}"
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Her Journey & Milestones Section */}
-      <div className="mt-16 md:mt-24">
-        <div className="text-center mb-12">
-          <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
+      <div className="mt-12 sm:mt-16 md:mt-24">
+        <div className="text-center mb-8 sm:mb-12">
+          <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-1.5 sm:mb-2">
             <Heart className="w-3.5 h-3.5 fill-[#ffdab9]/30" />
             Her Journey & Milestones
           </span>
-          <h3 className="font-serif-display text-3xl sm:text-4xl text-[#fffdf9] font-medium">
+          <h3 className="font-serif-display text-2xl sm:text-3xl md:text-4xl text-[#fffdf9] font-medium">
             Chapters of Her Story
           </h3>
-          <p className="text-xs sm:text-sm text-[#e6e6fa]/70 max-w-md mx-auto mt-1 font-sans">
+          <p className="text-xs sm:text-sm text-[#e6e6fa]/70 max-w-md mx-auto mt-1 font-sans px-2">
             From the very first hello to celebrating her today and all the adventures still ahead.
           </p>
         </div>
 
         {/* Vertical Timeline */}
-        <div className="relative border-l border-[#b76e79]/30 ml-4 sm:ml-8 md:ml-32 space-y-8 md:space-y-12">
+        <div className="relative border-l border-[#b76e79]/30 ml-2 sm:ml-8 md:ml-32 space-y-6 sm:space-y-8 md:space-y-12">
           {timeline.map((item, idx) => {
             const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI'];
             const roman = romanNumerals[idx] || `${idx + 1}`;
             return (
-              <div key={item.id} className="relative pl-6 sm:pl-8 group">
+              <div key={item.id} className="relative pl-5 sm:pl-8 group">
                 {/* Timeline Node Dot */}
                 <div
                   className={`absolute -left-[11px] top-2 w-5 h-5 rounded-full border-2 transition-transform duration-300 flex items-center justify-center ${
@@ -594,19 +756,19 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
 
                 {/* Timeline Card */}
                 <div
-                  className={`glass-panel rounded-2xl p-5 sm:p-7 transition-all duration-300 hover:translate-x-1.5 ${
+                  className={`glass-panel rounded-2xl p-4 sm:p-7 transition-all duration-300 hover:translate-x-1.5 ${
                     item.highlight
                       ? 'border-[#ffdab9]/40 bg-gradient-to-r from-[#440f4e]/90 via-[#310b38]/90 to-[#220727]/90 shadow-2xl shadow-[#b76e79]/25 ring-1 ring-[#ffdab9]/30'
                       : 'border-[#f7e7ce]/15'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-2 text-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2 text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-serif-display uppercase tracking-[0.2em] text-[#ffdab9] font-semibold">
+                      <span className="font-serif-display uppercase tracking-[0.15em] sm:tracking-[0.2em] text-[#ffdab9] font-semibold text-[11px] sm:text-xs">
                         Chapter {roman}
                       </span>
                       {item.period && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-sans bg-white/10 text-[#f7e7ce] border border-white/10">
+                        <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-sans bg-white/10 text-[#f7e7ce] border border-white/10">
                           {item.period}
                         </span>
                       )}
@@ -618,12 +780,12 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
                     )}
                   </div>
 
-                  <h4 className="font-serif-display text-xl sm:text-2xl font-semibold text-[#fffdf9] mb-2 tracking-wide">
+                  <h4 className="font-serif-display text-lg sm:text-2xl font-semibold text-[#fffdf9] mb-1.5 sm:mb-2 tracking-wide">
                     {item.title}
                   </h4>
 
                   {item.quote && (
-                    <blockquote className="my-2.5 pl-3 border-l-2 border-[#ffdab9]/50 italic text-[#ffdab9] text-xs sm:text-sm font-serif-display bg-white/5 py-2 pr-3 rounded-r-xl">
+                    <blockquote className="my-2 sm:my-2.5 pl-3 border-l-2 border-[#ffdab9]/50 italic text-[#ffdab9] text-xs sm:text-sm font-serif-display bg-white/5 py-1.5 sm:py-2 pr-3 rounded-r-xl">
                       "{item.quote}"
                     </blockquote>
                   )}
@@ -640,14 +802,14 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
 
       {/* Guided Storybook Flow Banner */}
       {onNavigateToGames && (
-        <div className="mt-16 text-center p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#2f0c39]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#ffdab9]/35 shadow-2xl">
-          <span className="text-xs uppercase tracking-widest text-[#ffdab9] font-semibold block mb-1">
+        <div className="mt-12 sm:mt-16 text-center p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#2f0c39]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#ffdab9]/35 shadow-2xl">
+          <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#ffdab9] font-semibold block mb-1">
             Next Chapter in Your Birthday Journey ✦
           </span>
-          <h4 className="font-serif-display text-xl sm:text-2xl text-[#fffdf9] font-bold mb-2">
+          <h4 className="font-serif-display text-lg sm:text-2xl text-[#fffdf9] font-bold mb-1.5 sm:mb-2">
             The Celebration Arcade & Story Matching
           </h4>
-          <p className="text-xs sm:text-sm text-[#f5ecfc] max-w-md mx-auto mb-5 leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#f5ecfc] max-w-md mx-auto mb-4 sm:mb-5 leading-relaxed px-1">
             Pop secret wish balloons and reconstruct our journey milestone by milestone through the memory match game!
           </p>
           <button
@@ -656,7 +818,7 @@ export const MemoriesSection: React.FC<MemoriesSectionProps> = ({ memories, time
               sound.playNavClick();
               onNavigateToGames();
             }}
-            className="px-7 py-3 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-bold text-xs tracking-wider uppercase shadow-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-2"
+            className="w-full sm:w-auto min-h-[46px] px-6 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-bold text-xs tracking-wider uppercase shadow-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2"
           >
             <span>Play Arcade Games & Unlock Stories 🎮</span>
             <ChevronRight className="w-4 h-4" />
