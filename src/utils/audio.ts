@@ -499,13 +499,45 @@ class SoundSystem {
 
   private currentTrackType: 'piano' | 'musicbox' | 'lofi' | 'celebration' = 'piano';
 
-  // --- Multi-Section Ambient Music Synthesizer ---
+  // --- Multi-Section Ambient Music & Custom Audio Player ---
+  private activeSourceUrl: string | undefined = undefined;
+  private timeListeners: ((current: number, duration: number) => void)[] = [];
+
+  public getAudioElement(): HTMLAudioElement | null {
+    return this.customAudio;
+  }
+
+  public getCurrentTime(): number {
+    return this.customAudio ? this.customAudio.currentTime : 0;
+  }
+
+  public getDuration(): number {
+    return this.customAudio && !isNaN(this.customAudio.duration) ? this.customAudio.duration : 0;
+  }
+
+  public seek(seconds: number) {
+    if (this.customAudio && !isNaN(seconds)) {
+      this.customAudio.currentTime = seconds;
+    }
+  }
+
+  public subscribeToTime(listener: (current: number, duration: number) => void) {
+    this.timeListeners.push(listener);
+    return () => {
+      this.timeListeners = this.timeListeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyTimeListeners(current: number, duration: number) {
+    this.timeListeners.forEach((fn) => fn(current, duration));
+  }
+
   public toggleSoundtrack(sourceUrl?: string, trackType?: 'piano' | 'musicbox' | 'lofi' | 'celebration'): boolean {
     if (this.isMusicPlaying) {
       this.pauseSoundtrack();
       return false;
     } else {
-      this.playSoundtrack(sourceUrl, trackType);
+      this.playSoundtrack(sourceUrl || this.activeSourceUrl, trackType || this.currentTrackType);
       return true;
     }
   }
@@ -520,37 +552,62 @@ class SoundSystem {
 
   public playTrack(trackType: 'piano' | 'musicbox' | 'lofi' | 'celebration', sourceUrl?: string) {
     this.currentTrackType = trackType;
+    this.activeSourceUrl = sourceUrl;
     if (this.isMusicPlaying) {
       this.pauseSoundtrack();
-      this.playSoundtrack(sourceUrl, trackType);
     }
+    this.playSoundtrack(sourceUrl, trackType);
   }
 
   public playSoundtrack(sourceUrl?: string, trackType: 'piano' | 'musicbox' | 'lofi' | 'celebration' = 'piano') {
     this.currentTrackType = trackType;
-    if (this.isMusicPlaying) return;
+    this.activeSourceUrl = sourceUrl;
 
     if (sourceUrl && sourceUrl.trim() !== '') {
       try {
+        if (this.musicInterval) {
+          clearInterval(this.musicInterval);
+          this.musicInterval = null;
+        }
+
         if (!this.customAudio) {
           this.customAudio = new Audio(sourceUrl);
           this.customAudio.loop = true;
+          this.customAudio.addEventListener('timeupdate', () => {
+            if (this.customAudio) {
+              this.notifyTimeListeners(this.customAudio.currentTime, this.customAudio.duration || 0);
+            }
+          });
+          this.customAudio.addEventListener('ended', () => {
+            this.isMusicPlaying = false;
+            this.notifyMusicListeners(false);
+          });
         } else {
-          this.customAudio.src = sourceUrl;
+          // If the audio source has changed, point to the new track and reset time
+          const currentSrc = this.customAudio.src;
+          if (!currentSrc || (!currentSrc.endsWith(encodeURI(sourceUrl)) && currentSrc !== sourceUrl)) {
+            this.customAudio.src = sourceUrl;
+            this.customAudio.currentTime = 0;
+          }
         }
+
+        this.customAudio.muted = this.isMuted;
         this.customAudio.play().then(() => {
           this.isMusicPlaying = true;
           this.notifyMusicListeners(true);
-        }).catch(() => {
+        }).catch((err) => {
+          console.warn('Audio play restricted or autoplay policy, falling back to synth:', err);
           this.startSynthMelody(trackType);
         });
         return;
-      } catch {
+      } catch (err) {
+        console.warn('Audio play error, falling back to synth:', err);
         this.startSynthMelody(trackType);
         return;
       }
     }
 
+    if (this.isMusicPlaying) return;
     this.startSynthMelody(trackType);
   }
 
