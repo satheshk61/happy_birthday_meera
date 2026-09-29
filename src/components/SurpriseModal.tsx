@@ -219,7 +219,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
 
       {/* Main Ceremony Card */}
       <div
-        className={`relative w-full max-w-3xl my-6 rounded-3xl p-5 sm:p-8 md:p-9 border border-[#ffdab9]/50 bg-gradient-to-b from-[#2e0938]/95 via-[#1d0524]/98 to-[#110216] shadow-[0_30px_100px_rgba(0,0,0,0.95)] text-center transition-all duration-700 transform ${
+        className={`relative w-full max-w-3xl my-3 sm:my-6 rounded-2xl sm:rounded-3xl p-3.5 sm:p-7 md:p-9 border border-[#ffdab9]/50 bg-gradient-to-b from-[#2e0938]/95 via-[#1d0524]/98 to-[#110216] shadow-[0_30px_100px_rgba(0,0,0,0.95)] text-center transition-all duration-700 transform ${
           showContent ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-6'
         }`}
       >
@@ -230,31 +230,31 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
             sound.playNavClick();
             onClose();
           }}
-          className="absolute top-4 right-4 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-[#f7e7ce] transition-all cursor-pointer z-40 border border-white/15 active:scale-95"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 min-h-[40px] min-w-[40px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-[#f7e7ce] transition-all cursor-pointer z-40 border border-white/15 active:scale-95"
           aria-label="Close cake celebration window"
         >
-          <X className="w-5 h-5 text-[#fffdf9]" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#fffdf9]" />
         </button>
 
         {/* Top Header Badge */}
-        <div className="flex justify-center items-center gap-2 mb-2 px-10">
-          <Sparkles className="w-3.5 h-3.5 text-[#ffdab9] animate-spin-slow shrink-0" />
-          <span className="text-[11px] sm:text-xs font-serif-display uppercase tracking-wider text-[#ffdab9] font-semibold text-center leading-tight">
+        <div className="flex justify-center items-center gap-1.5 sm:gap-2 mb-1.5 px-8 sm:px-10">
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ffdab9] animate-spin-slow shrink-0" />
+          <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-wider text-[#ffdab9] font-semibold text-center leading-tight">
             Birthday Cinema · Doctor Paapa
           </span>
-          <Sparkles className="w-3.5 h-3.5 text-[#ffdab9] animate-spin-slow shrink-0" />
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ffdab9] animate-spin-slow shrink-0" />
         </div>
 
-        <h2 className="font-script text-2xl sm:text-4xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-bold py-1 drop-shadow px-6">
+        <h2 className="font-script text-2xl sm:text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-bold py-0.5 sm:py-1 drop-shadow px-4 sm:px-6 leading-tight">
           Happy Birthday, Doctor Paapa! 🩺🎂
         </h2>
 
-        <p className="font-serif-display text-xs sm:text-sm text-[#f5ecfc] max-w-lg mx-auto mt-1 mb-4 italic px-3 leading-relaxed">
+        <p className="font-serif-display text-[11px] sm:text-sm text-[#f5ecfc] max-w-lg mx-auto mt-0.5 mb-3 sm:mb-4 italic px-2 sm:px-3 leading-relaxed">
           "Seeing you smile today while cutting your cake filled my heart with so much joy."
         </p>
 
         {/* CEREMONY STEPPER */}
-        <div className="w-full max-w-xl mx-auto mb-4 p-1.5 sm:p-2 rounded-2xl bg-black/40 border border-white/10 shadow-inner">
+        <div className="w-full max-w-xl mx-auto mb-3 sm:mb-4 p-1 sm:p-2 rounded-xl sm:rounded-2xl bg-black/40 border border-white/10 shadow-inner">
           <div className="grid grid-cols-5 gap-1 py-0.5">
             {[
               { step: 1, label: 'Wish', emoji: '🕯️' },
@@ -270,7 +270,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                   key={item.step}
                   type="button"
                   onClick={() => goToStep(item.step as CeremonyStep)}
-                  className={`min-h-[48px] py-1.5 px-1 rounded-xl font-serif-display text-[10px] sm:text-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 active:scale-95 ${
+                  className={`min-h-[42px] sm:min-h-[48px] py-1 sm:py-1.5 px-0.5 sm:px-1 rounded-lg sm:rounded-xl font-serif-display text-[9px] sm:text-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 active:scale-95 ${
                     isCurrent
                       ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-stone-950 font-bold shadow-lg shadow-amber-400/30'
                       : isPassed
@@ -278,8 +278,8 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                       : 'bg-white/5 border border-white/10 text-stone-400'
                   }`}
                 >
-                  <span className="text-base leading-none">{item.emoji}</span>
-                  <span className="leading-tight">{isPassed ? '✓' : item.label}</span>
+                  <span className="text-sm sm:text-base leading-none">{item.emoji}</span>
+                  <span className="leading-tight font-medium">{isPassed ? '✓' : item.label}</span>
                 </button>
               );
             })}
@@ -289,16 +289,16 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
         {/* ======================================================== */}
         {/* 3D UNREAL ENGINE WEBGL ARENA CONTAINER                   */}
         {/* ======================================================== */}
-        <div className="relative my-3 rounded-3xl bg-radial from-[#380e42]/60 via-[#18031e]/90 to-black border border-[#ffdab9]/40 p-3 sm:p-5 overflow-hidden shadow-2xl">
+        <div className="relative my-2.5 sm:my-3 rounded-2xl sm:rounded-3xl bg-radial from-[#380e42]/60 via-[#18031e]/90 to-black border border-[#ffdab9]/40 p-2.5 sm:p-5 overflow-hidden shadow-2xl">
           {/* Camera View Controls Toolbar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3 pb-2.5 border-b border-white/10">
+          <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-2 sm:mb-3 pb-2 border-b border-white/10">
             <div className="flex flex-wrap items-center gap-1">
               {(['orbit', 'front', 'close', 'top'] as CameraViewPreset[]).map((preset) => (
                 <button
                   key={preset}
                   type="button"
                   onClick={() => { sound.playNavClick(); setCameraPreset(preset); }}
-                  className={`px-2.5 py-1 min-h-[34px] rounded-full text-[11px] sm:text-xs font-serif-display capitalize transition-all cursor-pointer ${
+                  className={`px-2 py-1 min-h-[32px] rounded-full text-[10px] sm:text-xs font-serif-display capitalize transition-all cursor-pointer ${
                     cameraPreset === preset
                       ? 'bg-[#ffdab9] text-stone-900 font-bold shadow'
                       : 'bg-white/10 hover:bg-white/20 text-[#f5ecfc] border border-white/10'
@@ -308,9 +308,9 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <Crown className="w-3.5 h-3.5 text-amber-300" />
-              <span className="text-xs font-serif-display text-[#ffdab9] font-semibold">{celebrationPoints} / 350 XP</span>
+              <span className="text-[11px] sm:text-xs font-serif-display text-[#ffdab9] font-semibold">{celebrationPoints} / 350 XP</span>
             </div>
           </div>
 
@@ -341,9 +341,9 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
 
           {/* Slicing Cutscene Progress Indicator */}
           {stage === 'slicing' && (
-            <div className="mt-3 w-full max-w-sm mx-auto animate-fade-in">
+            <div className="mt-3 w-full max-w-sm mx-auto animate-fade-in px-2">
               <div className="flex justify-between text-xs font-serif-display text-amber-200 mb-1 font-semibold">
-                <span>Golden Blade Slicing in Slow Motion...</span>
+                <span>Golden Blade Slicing...</span>
                 <span>{sliceProgress}%</span>
               </div>
               <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-amber-300/30">
@@ -356,70 +356,70 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
           )}
 
           {/* PRIMARY ACTION BUTTONS */}
-          <div className="mt-4 pt-3 border-t border-white/10 flex flex-col items-center justify-center gap-3">
+          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-white/10 flex flex-col items-center justify-center gap-2.5 sm:gap-3">
             {ceremonyStep === 1 && (
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 w-full">
                 <button type="button" onClick={handleSequentialClick}
-                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-pulse">
-                  <Wind className="w-5 h-5 text-stone-950 shrink-0" />
+                  className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-sm sm:text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-pulse min-h-[48px]">
+                  <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-stone-950 shrink-0" />
                   <span>Make a Wish &amp; Blow Candles 🕯️</span>
                 </button>
-                <p className="text-xs sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
+                <p className="text-[11px] sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
                   Close your eyes and make a special birthday wish for Doctor Paapa.
                 </p>
               </div>
             )}
 
             {ceremonyStep === 2 && (
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 w-full">
                 <button type="button" onClick={handleSequentialClick}
-                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-bounce">
-                  <Flame className="w-5 h-5 text-amber-900 shrink-0" />
+                  className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-sm sm:text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-bounce min-h-[48px]">
+                  <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-amber-900 shrink-0" />
                   <span>Light Golden Sparklers ✨</span>
                 </button>
-                <p className="text-xs sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
+                <p className="text-[11px] sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
                   Illuminate the ceremony with festive sparkler fountains!
                 </p>
               </div>
             )}
 
             {ceremonyStep === 3 && (
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 w-full">
                 <button type="button" onClick={handleSequentialClick}
-                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-pulse">
-                  <Sparkles className="w-5 h-5 text-stone-950 shrink-0" />
+                  className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:brightness-110 text-stone-950 font-serif-display font-bold text-sm sm:text-base shadow-xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 animate-pulse min-h-[48px]">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-stone-950 shrink-0" />
                   <span>Ready the Birthday Knife 🔪</span>
                 </button>
-                <p className="text-xs sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
+                <p className="text-[11px] sm:text-sm font-serif-display text-[#f5ecfc]/80 italic text-center leading-relaxed">
                   Draw the royal Damascus ceremonial blade into cutting stance.
                 </p>
               </div>
             )}
 
             {ceremonyStep === 4 && (
-              <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex flex-col items-center gap-1.5 sm:gap-2 w-full">
                 <button type="button" onClick={handleSequentialClick} disabled={stage === 'slicing'}
-                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-bold text-base shadow-2xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 border border-[#ffdab9]/50 animate-bounce disabled:opacity-50">
+                  className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] text-[#fffdf9] font-serif-display font-bold text-sm sm:text-base shadow-2xl transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2 border border-[#ffdab9]/50 animate-bounce disabled:opacity-50 min-h-[48px]">
                   <span>🎂 Cut the Birthday Cake!</span>
                 </button>
-                <p className="text-xs sm:text-sm font-serif-display text-amber-200 italic text-center leading-relaxed">
+                <p className="text-[11px] sm:text-sm font-serif-display text-amber-200 italic text-center leading-relaxed">
                   Watch the cinematic slice and separate the first wedge!
                 </p>
               </div>
             )}
 
             {ceremonyStep === 5 && (
-              <div className="flex flex-col items-center gap-3 w-full">
-                <div className="flex flex-wrap items-center justify-center gap-2 px-4 py-2 rounded-2xl bg-emerald-950/80 border border-emerald-400/60 text-emerald-200 text-xs sm:text-sm font-serif-display shadow-md">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex flex-col items-center gap-2.5 sm:gap-3 w-full">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl bg-emerald-950/80 border border-emerald-400/60 text-emerald-200 text-[11px] sm:text-sm font-serif-display shadow-md">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
                   <span>Royal Cut! Precision: {slicePrecision}% ⭐⭐⭐ (+100 XP)</span>
                 </div>
                 <button type="button" onClick={handleSequentialClick}
-                  className="w-full px-6 py-4 rounded-2xl bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] text-base font-serif-display font-semibold shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all border border-[#ffdab9]/30">
+                  className="w-full px-4 sm:px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#b76e79] to-[#8d3d4b] text-[#fffdf9] text-sm sm:text-base font-serif-display font-semibold shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all border border-[#ffdab9]/30 min-h-[48px]">
                   <span>🍴 Feed Doctor Paapa ({bitesTaken}/3 Bites)</span>
                 </button>
                 {bitesTaken > 0 && (
-                  <p className="text-sm text-rose-300 font-serif-display font-semibold italic text-center leading-relaxed">
+                  <p className="text-xs sm:text-sm text-rose-300 font-serif-display font-semibold italic text-center leading-relaxed">
                     💖 Delicious Red Velvet! Sweet memories created!
                   </p>
                 )}
@@ -431,7 +431,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetCeremony}
-                className="mt-2 text-[11px] text-[#f5ecfc]/80 hover:text-[#fffdf9] underline flex items-center gap-1 cursor-pointer"
+                className="mt-1 sm:mt-2 text-[11px] sm:text-xs text-[#f5ecfc]/80 hover:text-[#fffdf9] underline flex items-center gap-1 cursor-pointer py-1 min-h-[36px]"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Replay Cake Ceremony from Step 1</span>
@@ -444,23 +444,23 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
         {/* STEP 5 SUITE: DEDICATION LETTER, TOPPINGS & PROPHECY     */}
         {/* ======================================================== */}
         {ceremonyStep === 5 && (
-          <div className="mt-5 p-5 sm:p-6 rounded-3xl bg-white/5 border border-amber-300/40 text-center animate-fade-in shadow-2xl">
+          <div className="mt-4 sm:mt-5 p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/5 border border-amber-300/40 text-center animate-fade-in shadow-2xl">
             {/* Heartfelt Letter Dedication Message */}
-            <blockquote className="mb-5 p-4 rounded-2xl bg-black/50 border border-[#ffdab9]/40 text-left shadow-lg">
+            <blockquote className="mb-4 sm:mb-5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-black/50 border border-[#ffdab9]/40 text-left shadow-lg">
               <span className="text-[10px] font-mono tracking-widest text-[#ffdab9] uppercase block mb-1 font-semibold">
                 A Message From Your Brother & Friend:
               </span>
-              <p className="font-serif-display text-sm sm:text-base text-[#fffdf9] italic leading-relaxed">
+              <p className="font-serif-display text-xs sm:text-sm md:text-base text-[#fffdf9] italic leading-relaxed">
                 "Dear Doctor paapa, seeing you smile today while cutting your cake filled my heart with so much joy. May your days always be as sweet and bright as this moment. I swear that your hardwork and dedication will take you to great heights in your career and life. I will protect you as my eyes and remain just a call away!"
               </p>
             </blockquote>
 
             {/* Action 1: Interactive Toppings */}
-            <div className="mb-4">
-              <span className="text-xs font-serif-display text-[#fffdf9] block mb-2 font-medium">
+            <div className="mb-3.5 sm:mb-4">
+              <span className="text-[11px] sm:text-xs font-serif-display text-[#fffdf9] block mb-2 font-medium">
                 Garnish her slice with luxury toppings (+25 XP each):
               </span>
-              <div className="flex flex-wrap items-center justify-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
                 {AVAILABLE_TOPPINGS.map((topping) => {
                   const isSelected = selectedToppings.includes(topping.id);
                   return (
@@ -468,7 +468,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                       key={topping.id}
                       type="button"
                       onClick={(e) => handleToggleTopping(topping.id, e)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-serif-display border transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                      className={`px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-serif-display border transition-all flex items-center gap-1 sm:gap-1.5 cursor-pointer active:scale-95 min-h-[36px] ${
                         isSelected
                           ? 'bg-amber-400/30 border-amber-300 text-[#fffdf9] shadow-md shadow-amber-400/20 font-bold'
                           : 'bg-white/5 hover:bg-white/10 border-white/20 text-[#f5ecfc]'
@@ -484,7 +484,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
             </div>
 
             {/* Action 2: Royal Year Prophecy Scroll */}
-            <div className="pt-2">
+            <div className="pt-1 sm:pt-2">
               {!fortuneOpened ? (
                 <button
                   type="button"
@@ -493,15 +493,15 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                     setFortuneOpened(true);
                     triggerSurpriseConfetti();
                   }}
-                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400/25 via-amber-300/35 to-amber-400/25 hover:from-amber-400/40 border border-amber-300/50 text-amber-100 text-xs font-serif-display font-semibold flex items-center gap-2 mx-auto cursor-pointer transition-all active:scale-95 shadow-md"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400/25 via-amber-300/35 to-amber-400/25 hover:from-amber-400/40 border border-amber-300/50 text-amber-100 text-xs font-serif-display font-semibold flex items-center justify-center gap-2 mx-auto cursor-pointer transition-all active:scale-95 shadow-md min-h-[44px]"
                 >
-                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin-slow" />
-                  <span>Unroll Doctor Paapa's Royal Prophecy Scroll 📜 (+50 XP)</span>
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin-slow shrink-0" />
+                  <span>Unroll Doctor Paapa's Prophecy Scroll 📜 (+50 XP)</span>
                 </button>
               ) : (
-                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/50 via-purple-950/60 to-black/70 border border-amber-300/50 animate-fade-in max-w-md mx-auto text-left shadow-xl">
+                <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-r from-amber-950/50 via-purple-950/60 to-black/70 border border-amber-300/50 animate-fade-in max-w-md mx-auto text-left shadow-xl">
                   <div className="flex items-center gap-2 text-xs font-serif-display text-amber-300 font-bold mb-1">
-                    <Star className="w-4 h-4 fill-amber-300" />
+                    <Star className="w-3.5 h-3.5 fill-amber-300 shrink-0" />
                     <span>The Doctor's Prophecy for 2026 & Beyond:</span>
                   </div>
                   <p className="font-serif-display text-xs sm:text-sm text-[#fffdf9] italic leading-relaxed">
@@ -512,7 +512,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
             </div>
 
             {/* Navigation Bridge Out of Ceremony */}
-            <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-5 pt-3 sm:pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 sm:gap-3">
               {onOpenLetterTab && (
                 <button
                   type="button"
@@ -521,7 +521,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                     onClose();
                     onOpenLetterTab();
                   }}
-                  className="px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-bold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-4 sm:px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-bold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
                 >
                   <span>Read The Full Letter & Timeline 💌</span>
                 </button>
@@ -534,7 +534,7 @@ export const SurpriseModal: React.FC<SurpriseModalProps> = ({
                     onClose();
                     onOpenGamesTab();
                   }}
-                  className="px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer border border-white/15"
+                  className="w-full sm:w-auto px-4 sm:px-5 py-3 sm:py-2.5 rounded-xl sm:rounded-full bg-white/10 hover:bg-white/15 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer border border-white/15 min-h-[44px] flex items-center justify-center gap-1.5"
                 >
                   <span>Play Arcade Games 🎮</span>
                 </button>
