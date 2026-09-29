@@ -18,6 +18,8 @@
     line-height: 1.65;
     font-size: 16px; /* Prevents iOS auto-zoom on inputs */
     -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -32,8 +34,13 @@
 
   /* Global scrollbar hide — clean modal/page experience */
   * {
-    scrollbar-width: none;
     -ms-overflow-style: none;
+  }
+
+  @supports (scrollbar-width: none) {
+    * {
+      scrollbar-width: none;
+    }
   }
 
   *::-webkit-scrollbar {
@@ -62,45 +69,50 @@
 .gold-foil-text {
   background: linear-gradient(135deg, #ffffff 0%, #ffe3c1 28%, #ffd199 48%, #f8c9d0 78%, #ffffff 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .rose-gold-text {
   background: linear-gradient(135deg, #fffdf9 0%, #e8a5b0 40%, #c47c87 75%, #ffdab9 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .champagne-text {
   background: linear-gradient(135deg, #ffffff 0%, #f7e7ce 45%, #ffd4a3 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.text-balance {
-  text-wrap: balance;
+@supports (text-wrap: balance) {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 /* Glassmorphism styling */
 .glass-panel {
   background: linear-gradient(165deg, rgba(42, 13, 50, 0.65) 0%, rgba(27, 8, 33, 0.75) 100%);
-  backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   border: 1px solid rgba(247, 231, 206, 0.16);
   box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 45px rgba(183, 110, 121, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
 .glass-pill {
   background: rgba(45, 15, 52, 0.65);
-  backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   border: 1px solid rgba(247, 231, 206, 0.2);
 }
 
 .glass-dock {
   background: rgba(26, 7, 32, 0.85);
-  backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border: 1px solid rgba(247, 231, 206, 0.2);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(183, 110, 121, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
