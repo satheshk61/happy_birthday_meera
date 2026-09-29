@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Disc3, Sparkles, Volume2, Music, SkipForward, SkipBack } from 'lucide-react';
-import { BirthdayConfig } from '../birthdayConfig';
+import { Play, Pause, Disc3, Sparkles, Volume2, Music, SkipForward, SkipBack, Heart, Radio, ListMusic, Waves } from 'lucide-react';
+import { BirthdayConfig, AudioTrackItem } from '../birthdayConfig';
 import { sound } from '../utils/audio';
 
 interface MusicSectionProps {
@@ -14,9 +14,31 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
   isPlaying,
   onTogglePlay,
 }) => {
-  const [progress, setProgress] = useState(24); // percentage
-  const [currentTime, setCurrentTime] = useState(44); // seconds
-  const totalDuration = config.song.duration || 184;
+  const tracks: AudioTrackItem[] = config.soundtracks || [];
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [selectedSection, setSelectedSection] = useState<string>('all');
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const currentTrack = tracks[currentTrackIndex] || tracks[0] || {
+    id: 'default',
+    title: config.song.title,
+    artist: config.song.artist,
+    section: 'Acoustic Piano',
+    synthType: 'piano' as const,
+    duration: config.song.duration || 184,
+    source: config.song.source,
+    mood: 'Nostalgic & Warm',
+    description: 'Serene ambient melody dedicated to Meera.',
+  };
+
+  const totalDuration = currentTrack.duration || 184;
+
+  // Filtered tracks based on audio section
+  const availableSections = ['all', ...Array.from(new Set(tracks.map((t) => t.section)))];
+  const displayedTracks = selectedSection === 'all'
+    ? tracks
+    : tracks.filter((t) => t.section === selectedSection);
 
   useEffect(() => {
     let interval: any;
@@ -44,24 +66,47 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     setCurrentTime(Math.floor((newProgress / 100) * totalDuration));
   };
 
+  const handleSelectTrack = (index: number) => {
+    sound.playNavClick();
+    setCurrentTrackIndex(index);
+    setCurrentTime(0);
+    setProgress(0);
+    const track = tracks[index];
+    if (track) {
+      sound.playTrack(track.synthType, track.source);
+    }
+  };
+
+  const handleNextTrack = () => {
+    sound.playNavClick();
+    const nextIndex = (currentTrackIndex + 1) % tracks.length;
+    handleSelectTrack(nextIndex);
+  };
+
+  const handlePrevTrack = () => {
+    sound.playNavClick();
+    const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    handleSelectTrack(prevIndex);
+  };
+
   return (
-    <section className="relative py-12 md:py-20 px-4 max-w-4xl mx-auto">
+    <section className="relative py-12 md:py-20 px-4 max-w-5xl mx-auto">
       {/* Section Header */}
       <div className="text-center mb-10 md:mb-14">
         <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
           <Music className="w-3.5 h-3.5" />
-          Acoustic Melody
+          Multi-Section Soundtrack Studio
         </span>
         <h2 className="font-script text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
-          Our Soundtrack
+          Soundtracks For Meera
         </h2>
         <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-2 italic">
-          The melodies that echo our late-night conversations and brightest days.
+          Multiple audio sections curated for every mood — from acoustic piano to music box and cozy lofi vibes.
         </p>
       </div>
 
       {/* Main Music Player Card */}
-      <div className="relative glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border border-[#f7e7ce]/20 overflow-hidden">
+      <div className="relative glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border border-[#f7e7ce]/20 overflow-hidden mb-10">
         {/* Ambient glowing radial behind vinyl */}
         <div
           className={`absolute -top-20 -left-20 w-80 h-80 rounded-full blur-3xl transition-opacity duration-700 pointer-events-none ${
@@ -113,8 +158,8 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                   <span className="font-script text-xs sm:text-sm text-[#fffdf9] font-bold leading-none">
                     Meera
                   </span>
-                  <span className="text-[7px] text-[#ffdab9]/80 font-mono tracking-tighter mt-0.5">
-                    VOL. 01
+                  <span className="text-[7px] text-[#ffdab9]/80 font-mono tracking-tighter mt-0.5 uppercase">
+                    TRACK 0{currentTrackIndex + 1}
                   </span>
                   {/* Spindle hole */}
                   <div className="w-2.5 h-2.5 rounded-full bg-[#110515] border border-stone-600 mt-1" />
@@ -128,8 +173,8 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
             {/* Song Meta */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[11px] text-[#ffdab9] font-serif-display uppercase tracking-[0.2em] font-semibold">
-                  Audio Dedication
+                <span className="px-2 py-0.5 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/30 text-[10px] text-[#ffdab9] font-serif-display uppercase tracking-widest font-semibold">
+                  {currentTrack.section}
                 </span>
                 <span aria-hidden="true" className="text-white/30">·</span>
                 {isPlaying ? (
@@ -145,11 +190,15 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
               </div>
 
               <h3 className="font-serif-display text-2xl sm:text-3xl text-[#fffdf9] font-bold tracking-tight text-balance leading-snug">
-                {config.song.title}
+                {currentTrack.title}
               </h3>
 
               <p className="font-serif-display text-xs sm:text-sm text-[#ffdab9]/80 mt-1 italic font-light">
-                {config.song.artist}
+                {currentTrack.artist}
+              </p>
+
+              <p className="text-xs text-[#e6e6fa]/70 font-sans mt-2 font-light">
+                {currentTrack.description}
               </p>
             </div>
 
@@ -196,12 +245,8 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    sound.playNavClick();
-                    setCurrentTime(0);
-                    setProgress(0);
-                  }}
-                  title="Restart"
+                  onClick={handlePrevTrack}
+                  title="Previous track"
                   className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer"
                 >
                   <SkipBack className="w-4 h-4" />
@@ -225,11 +270,8 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
 
                 <button
                   type="button"
-                  onClick={() => {
-                    sound.playNavClick();
-                    setCurrentTime(Math.min(totalDuration, currentTime + 15));
-                  }}
-                  title="Forward 15s"
+                  onClick={handleNextTrack}
+                  title="Next track"
                   className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer"
                 >
                   <SkipForward className="w-4 h-4" />
@@ -238,10 +280,105 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
 
               <div className="flex items-center gap-1.5 text-xs text-[#e6e6fa]/60">
                 <Volume2 className="w-4 h-4 text-[#ffdab9]" />
-                <span className="font-sans">Acoustic Synth Mode</span>
+                <span className="font-sans capitalize">{currentTrack.synthType} Mode</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Audio Sections & Curated Soundscapes Suite */}
+      <div className="mt-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-2">
+            <ListMusic className="w-4 h-4 text-[#ffdab9]" />
+            <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-[#fffdf9]">
+              Curated Audio Sections
+            </h3>
+          </div>
+
+          {/* Section Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+            {availableSections.map((sec) => (
+              <button
+                key={sec}
+                type="button"
+                onClick={() => {
+                  sound.playNavClick();
+                  setSelectedSection(sec);
+                }}
+                className={`px-3 py-1.5 rounded-full text-xs font-serif-display whitespace-nowrap transition-all cursor-pointer ${
+                  selectedSection === sec
+                    ? 'bg-gradient-to-r from-[#b76e79] to-[#914d57] text-[#fffdf9] shadow-sm font-semibold border border-[#f7e7ce]/30'
+                    : 'bg-white/5 hover:bg-white/10 text-[#e6e6fa]/70'
+                }`}
+              >
+                <span>{sec === 'all' ? 'All Sections' : sec}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tracks Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {displayedTracks.map((track) => {
+            const actualIndex = tracks.findIndex((t) => t.id === track.id);
+            const isThisTrackActive = actualIndex === currentTrackIndex;
+
+            return (
+              <div
+                key={track.id}
+                onClick={() => handleSelectTrack(actualIndex)}
+                className={`p-5 rounded-2xl border transition-all cursor-pointer select-none relative overflow-hidden group ${
+                  isThisTrackActive
+                    ? 'bg-gradient-to-r from-[#330c3d]/90 via-[#27092e]/95 to-[#190420]/95 border-[#ffdab9]/50 shadow-xl shadow-[#b76e79]/20'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                        isThisTrackActive && isPlaying
+                          ? 'bg-[#b76e79] text-[#fffdf9] shadow-md shadow-[#b76e79]/50'
+                          : 'bg-white/10 text-[#f7e7ce] group-hover:bg-[#b76e79]/40'
+                      }`}
+                    >
+                      {isThisTrackActive && isPlaying ? (
+                        <Waves className="w-4 h-4 animate-pulse" />
+                      ) : (
+                        <Play className="w-3.5 h-3.5 fill-current translate-x-0.5" />
+                      )}
+                    </button>
+                    <div>
+                      <span className="text-[10px] font-serif-display uppercase tracking-widest text-[#ffdab9] font-medium block">
+                        {track.section}
+                      </span>
+                      <h4 className="font-serif-display text-sm sm:text-base font-bold text-[#fffdf9]">
+                        {track.title}
+                      </h4>
+                    </div>
+                  </div>
+
+                  <span className="text-[11px] font-mono text-[#e6e6fa]/60">
+                    {formatTime(track.duration)}
+                  </span>
+                </div>
+
+                <p className="text-xs text-[#e6e6fa]/70 font-sans italic mb-3 line-clamp-2">
+                  "{track.description}"
+                </p>
+
+                <div className="flex items-center justify-between text-[11px] font-serif-display text-[#ffdab9]/80 border-t border-white/5 pt-2">
+                  <span>{track.artist}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-white/5 text-[10px] text-[#f7e7ce]/80">
+                    {track.mood}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
