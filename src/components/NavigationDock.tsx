@@ -38,11 +38,11 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
   return (
     <nav
       aria-label="Birthday experience navigation"
-      className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-safe px-3 pointer-events-none"
+      className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-safe px-2 sm:px-3 pointer-events-none"
     >
-      <div className="pointer-events-auto mb-3 md:mb-6 max-w-lg w-full glass-dock rounded-2xl md:rounded-full px-2 py-1.5 flex items-center justify-between shadow-2xl transition-all border border-[#f7e7ce]/25">
+      <div className="pointer-events-auto mb-2 sm:mb-3 md:mb-6 max-w-lg w-full glass-dock rounded-2xl md:rounded-full px-1.5 sm:px-2.5 py-1 flex items-center justify-between shadow-2xl transition-all border border-[#f7e7ce]/25">
         {/* Navigation Items */}
-        <div className="flex items-center justify-around flex-1">
+        <div className="flex items-center justify-around flex-1 gap-0.5 sm:gap-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -51,7 +51,7 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => handleNavClick(item.id)}
-                className={`relative min-h-[44px] min-w-[44px] flex flex-col items-center justify-center rounded-xl px-2 py-1 transition-all duration-200 cursor-pointer ${
+                className={`relative min-h-[40px] sm:min-h-[44px] min-w-[36px] sm:min-w-[44px] flex flex-col items-center justify-center rounded-xl px-1 sm:px-2 py-0.5 sm:py-1 transition-all duration-200 cursor-pointer active:scale-95 ${
                   isActive
                     ? 'text-[#fffdf9]'
                     : 'text-[#f7e7ce]/85 hover:text-[#fffdf9] hover:bg-white/10'
@@ -62,11 +62,11 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
                   <span className="absolute inset-0 bg-gradient-to-r from-[#b76e79]/40 via-[#ffdab9]/30 to-[#b76e79]/40 rounded-xl border border-[#f7e7ce]/30 -z-10 shadow-sm" />
                 )}
                 <Icon
-                  className={`w-4 h-4 md:w-5 md:h-5 transition-transform ${
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-transform ${
                     isActive ? 'scale-110 text-[#ffdab9]' : ''
                   }`}
                 />
-                <span className={`text-[10px] md:text-[11px] font-serif-display mt-0.5 tracking-tight whitespace-nowrap transition-colors ${isActive ? 'text-[#ffdab9] font-semibold' : 'text-[#e6e6fa]/70'}`}>
+                <span className={`text-[9px] sm:text-[10px] md:text-[11px] font-serif-display mt-0.5 tracking-tight whitespace-nowrap transition-colors ${isActive ? 'text-[#ffdab9] font-semibold' : 'text-[#e6e6fa]/70'}`}>
                   {item.label}
                 </span>
                 {isActive && (
@@ -78,10 +78,10 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
         </div>
 
         {/* Vertical divider */}
-        <div className="w-[1px] h-6 bg-[#f7e7ce]/15 mx-1" />
+        <div className="w-[1px] h-5 sm:h-6 bg-[#f7e7ce]/15 mx-0.5 sm:mx-1 shrink-0" />
 
         {/* Quick controls: Vinyl soundtrack toggle & Mute */}
-        <div className="flex items-center gap-1 pl-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 pl-0.5 sm:pl-1 shrink-0">
           <button
             type="button"
             onClick={() => {
@@ -89,13 +89,13 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
               onToggleMusic();
             }}
             title={isMusicPlaying ? 'Pause Melody' : 'Play Melody'}
-            className={`min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl transition-all cursor-pointer ${
+            className={`min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center rounded-xl transition-all cursor-pointer active:scale-95 ${
               isMusicPlaying
                 ? 'text-[#ffdab9] bg-[#b76e79]/30 border border-[#ffdab9]/40'
                 : 'text-[#e6e6fa]/50 hover:text-[#f7e7ce]'
             }`}
           >
-            <Disc3 className={`w-4 h-4 ${isMusicPlaying ? 'animate-spin-slow' : ''}`} />
+            <Disc3 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isMusicPlaying ? 'animate-spin-slow' : ''}`} />
           </button>
 
           <button
@@ -105,9 +105,9 @@ export const NavigationDock: React.FC<NavigationDockProps> = ({
               onToggleMute();
             }}
             title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
-            className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-xl text-[#e6e6fa]/60 hover:text-[#f7e7ce] transition-all cursor-pointer"
+            className="min-h-[36px] min-w-[36px] sm:min-h-[40px] sm:min-w-[40px] flex items-center justify-center rounded-xl text-[#e6e6fa]/60 hover:text-[#f7e7ce] transition-all cursor-pointer active:scale-95"
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-rose-300" /> : <Volume2 className="w-4 h-4" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-300" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
         </div>
       </div>
