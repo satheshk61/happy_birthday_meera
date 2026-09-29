@@ -23,6 +23,8 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
+      // Pause background music so video audio is clear and immersive
+      sound.pauseSoundtrack();
       videoRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch(() => {
@@ -31,7 +33,8 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
     }
   };
 
-  const handleFullscreen = () => {
+  const handleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (videoRef.current) {
       if (videoRef.current.requestFullscreen) {
         videoRef.current.requestFullscreen();
@@ -49,62 +52,72 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
   };
 
   return (
-    <section className="relative py-12 md:py-20 px-4 max-w-4xl mx-auto text-center">
+    <section className="relative py-8 sm:py-16 md:py-20 px-3 sm:px-4 max-w-4xl mx-auto text-center">
       {/* Section Header */}
-      <div className="mb-10 md:mb-14">
-        <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
-          <Video className="w-3.5 h-3.5" />
-          Cinematic Greeting
+      <div className="mb-6 sm:mb-10 md:mb-14">
+        <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-1.5 sm:mb-2">
+          <Video className="w-3.5 h-3.5 text-[#ffdab9]" />
+          Cinematic Greeting Dedicated to You
         </span>
-        <h2 className="font-script text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
+        <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
           {config.video.title}
         </h2>
-        <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-2 italic">
-          A personal video note captured just for your special day.
+        <p className="font-serif-display text-xs sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-1 sm:mt-2 italic px-2">
+          {config.video.caption}
         </p>
       </div>
 
-      {/* 9:16 Vertical Video Container */}
-      <div className="relative mx-auto w-full max-w-[320px] sm:max-w-[360px] aspect-[9/16] rounded-[24px] p-2 bg-gradient-to-b from-[#f7e7ce]/30 via-[#b76e79]/30 to-[#3b0f44]/40 shadow-2xl shadow-[#100314]/80">
+      {/* Vertical Video Container */}
+      <div className="relative mx-auto w-full max-w-[300px] sm:max-w-[360px] aspect-[9/16] rounded-[24px] p-2 bg-gradient-to-b from-[#f7e7ce]/30 via-[#b76e79]/30 to-[#3b0f44]/40 shadow-2xl shadow-[#100314]/80">
         {/* Soft atmospheric glow */}
         <div className="absolute -inset-4 bg-gradient-to-tr from-[#b76e79]/20 via-[#ffdab9]/20 to-transparent rounded-[32px] blur-2xl -z-10 pointer-events-none" />
 
-        <div className="relative w-full h-full rounded-[20px] overflow-hidden bg-[#1e0725] border border-[#f7e7ce]/25 flex flex-col justify-between">
+        <div
+          onClick={handleTogglePlay}
+          className="relative w-full h-full rounded-[20px] overflow-hidden bg-black border border-[#f7e7ce]/25 flex flex-col justify-between cursor-pointer group"
+        >
           {activeVideoSrc ? (
             /* Active HTML5 Video Player */
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full bg-black flex items-center justify-center">
               <video
                 ref={videoRef}
                 src={activeVideoSrc}
                 playsInline
-                className="w-full h-full object-cover"
+                poster={config.video.poster}
+                className="w-full h-full object-contain bg-black"
                 onEnded={() => setIsPlaying(false)}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
               />
 
               {/* Play / Pause Overlay Button */}
               {!isPlaying && (
-                <button
-                  type="button"
-                  onClick={handleTogglePlay}
-                  className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-[#b76e79]/80 hover:bg-[#b76e79] text-[#fffdf9] flex items-center justify-center backdrop-blur-md border border-[#f7e7ce]/40 shadow-xl transition-all cursor-pointer"
-                >
-                  <Play className="w-7 h-7 fill-current translate-x-0.5" />
-                </button>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/35 backdrop-blur-[2px] transition-all">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#b76e79]/90 hover:bg-[#b76e79] text-[#fffdf9] flex items-center justify-center border border-[#f7e7ce]/40 shadow-2xl transition-transform transform group-hover:scale-110 active:scale-95">
+                    <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-current translate-x-0.5" />
+                  </div>
+                </div>
               )}
 
               {/* Controls bar */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between text-[#fffdf9]">
+              <div
+                className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 bg-gradient-to-t from-black/85 via-black/50 to-transparent flex items-center justify-between text-[#fffdf9]"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <button
                   type="button"
                   onClick={handleTogglePlay}
-                  className="p-2 rounded-full hover:bg-white/20 transition-all cursor-pointer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full hover:bg-white/20 transition-all cursor-pointer active:scale-95"
                 >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
                 </button>
+                <div className="text-[10px] sm:text-[11px] font-mono text-[#ffdab9] tracking-wider uppercase font-medium">
+                  Doctor Paapa Birthday Video
+                </div>
                 <button
                   type="button"
                   onClick={handleFullscreen}
-                  className="p-2 rounded-full hover:bg-white/20 transition-all cursor-pointer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full hover:bg-white/20 transition-all cursor-pointer active:scale-95"
                 >
                   <Maximize className="w-5 h-5" />
                 </button>
@@ -112,11 +125,11 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
             </div>
           ) : (
             /* Elegant Placeholder When No Video is Linked */
-            <div className="w-full h-full flex flex-col justify-between p-6 bg-gradient-to-b from-[#310c3b] via-[#220729] to-[#16041c] text-center relative overflow-hidden">
+            <div className="w-full h-full flex flex-col justify-between p-4 sm:p-6 bg-gradient-to-b from-[#310c3b] via-[#220729] to-[#16041c] text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(#b76e79_1px,transparent_1px)] [background-size:18px_18px] opacity-15" />
 
               {/* Top Reel Tag */}
-              <div className="relative z-10 flex items-center justify-between text-xs text-[#ffdab9]/80 font-mono">
+              <div className="relative z-10 flex items-center justify-between text-[11px] sm:text-xs text-[#ffdab9]/80 font-mono">
                 <span className="flex items-center gap-1">
                   <Film className="w-3.5 h-3.5" />
                   REEL #01
@@ -126,17 +139,17 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
 
               {/* Center Play Graphic */}
               <div className="relative z-10 flex flex-col items-center justify-center my-auto">
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-[#b76e79] to-[#d68a96] p-[2px] shadow-xl shadow-[#b76e79]/30 flex items-center justify-center mb-4 animate-pulse-soft">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-[#b76e79] to-[#d68a96] p-[2px] shadow-xl shadow-[#b76e79]/30 flex items-center justify-center mb-3 sm:mb-4 animate-pulse-soft">
                   <div className="w-full h-full rounded-full bg-[#27092e] flex items-center justify-center border border-[#ffdab9]/30">
-                    <Sparkles className="w-8 h-8 text-[#ffdab9]" />
+                    <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-[#ffdab9]" />
                   </div>
                 </div>
 
-                <h3 className="font-serif-display text-xl text-[#fffdf9] font-medium mb-1">
+                <h3 className="font-serif-display text-lg sm:text-xl text-[#fffdf9] font-medium mb-1">
                   Meera's Birthday Reel
                 </h3>
 
-                <p className="font-sans text-xs text-[#e6e6fa]/70 max-w-xs leading-relaxed italic mb-4">
+                <p className="font-sans text-xs text-[#e6e6fa]/70 max-w-xs leading-relaxed italic mb-4 px-2">
                   "{config.video.caption}"
                 </p>
 
@@ -147,7 +160,7 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
                   className="px-4 py-2 rounded-full bg-[#b76e79]/30 hover:bg-[#b76e79]/50 border border-[#f7e7ce]/40 text-xs font-serif-display text-[#fffdf9] flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-md"
                 >
                   <Upload className="w-3.5 h-3.5 text-[#ffdab9]" />
-                  <span>Choose MP4 Video File</span>
+                  <span>Choose MP4 Video</span>
                 </button>
                 <input
                   ref={fileInputRef}
@@ -159,7 +172,7 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
               </div>
 
               {/* Bottom Footer Note */}
-              <div className="relative z-10 text-[10px] text-[#e6e6fa]/50 font-sans tracking-wide">
+              <div className="relative z-10 text-[9px] sm:text-[10px] text-[#e6e6fa]/50 font-sans tracking-wide">
                 Configurable via `birthdayConfig.video.source`
               </div>
             </div>
