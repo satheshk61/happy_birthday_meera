@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-script: 'Dancing Script', cursive;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #14051a;
+    color: #f7e7ce;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  /* Safe area padding for mobile docks */
+  .pb-safe {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+}
+
+.font-script {
+  font-family: 'Dancing Script', cursive;
+}
+
+.font-serif-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-sans-body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Typographic Gold Foil & Rose Gold Gradients */
+.gold-foil-text {
+  background: linear-gradient(135deg, #ffffff 0%, #ffe3c1 28%, #ffd199 48%, #f8c9d0 78%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.rose-gold-text {
+  background: linear-gradient(135deg, #fffdf9 0%, #e8a5b0 40%, #c47c87 75%, #ffdab9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.champagne-text {
+  background: linear-gradient(135deg, #ffffff 0%, #f7e7ce 45%, #ffd4a3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Glassmorphism styling */
+.glass-panel {
+  background: linear-gradient(165deg, rgba(42, 13, 50, 0.65) 0%, rgba(27, 8, 33, 0.75) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(247, 231, 206, 0.16);
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.6), 0 0 45px rgba(183, 110, 121, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.glass-pill {
+  background: rgba(45, 15, 52, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(247, 231, 206, 0.2);
+}
+
+.glass-dock {
+  background: rgba(26, 7, 32, 0.85);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(247, 231, 206, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(183, 110, 121, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Horological counter card */
+.horological-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid rgba(247, 231, 206, 0.16);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Handmade Cotton Parchment Paper */
+.parchment-sheet {
+  background: radial-gradient(circle at 10% 20%, #fffdf9 0%, #faf3e8 40%, #f4e7d5 100%);
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(183, 110, 121, 0.25), 0 0 45px rgba(255, 218, 185, 0.15);
+}
+
+/* Rose Gold & Champagne Accent Shadows */
+.rose-gold-glow {
+  box-shadow: 0 0 35px rgba(183, 110, 121, 0.35);
+}
+
+.champagne-glow {
+  box-shadow: 0 0 40px rgba(247, 231, 206, 0.3);
+}
+
+/* Vinyl rotation */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 16s linear infinite;
+}
+
+.animate-spin-paused {
+  animation-play-state: paused;
+}
+
+/* Floating animation */
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+.animate-float {
+  animation: float-gentle 4.5s ease-in-out infinite;
+}
+
+/* Soft pulse glow */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
+
+/* Ken burns subtle drift */
+@keyframes ken-burns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.05) translate(-1%, -1%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.animate-ken-burns {
+  animation: ken-burns 14s ease-in-out infinite alternate;
+}
+
+/* Cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor {
+  animation: blink 0.8s infinite;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow,
+  .animate-float,
+  .animate-pulse-soft,
+  .animate-ken-burns {
+    animation: none !important;
+  }
+}
