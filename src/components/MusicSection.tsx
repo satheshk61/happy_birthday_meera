@@ -12,7 +12,6 @@ interface MusicSectionProps {
 export const MusicSection: React.FC<MusicSectionProps> = ({
   config,
   isPlaying,
-  onTogglePlay,
 }) => {
   const tracks: AudioTrackItem[] = config.soundtracks || [];
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -24,25 +23,35 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     id: 'default',
     title: config.song.title,
     artist: config.song.artist,
-    section: 'Acoustic Piano',
-    synthType: 'piano' as const,
-    duration: config.song.duration || 184,
+    section: "Brother's Promise",
+    synthType: 'celebration' as const,
+    duration: config.song.duration || 268,
     source: config.song.source,
-    mood: 'Nostalgic & Warm',
-    description: 'Serene ambient melody dedicated to Meera.',
+    mood: 'Unconditional Bond & Protection',
+    description: 'Dedicated to Doctor Paapa.',
   };
 
-  const totalDuration = currentTrack.duration || 184;
+  const totalDuration = sound.getDuration() || currentTrack.duration || 268;
 
-  // Filtered tracks based on audio section
-  const availableSections = ['all', ...Array.from(new Set(tracks.map((t) => t.section)))];
-  const displayedTracks = selectedSection === 'all'
-    ? tracks
-    : tracks.filter((t) => t.section === selectedSection);
+  // Real-time audio subscription for MP3 track progress
+  useEffect(() => {
+    const unsubTime = sound.subscribeToTime((curr, dur) => {
+      setCurrentTime(curr);
+      const effectiveDur = dur > 0 ? dur : totalDuration;
+      if (effectiveDur > 0) {
+        setProgress((curr / effectiveDur) * 100);
+      }
+    });
 
+    return () => {
+      unsubTime();
+    };
+  }, [totalDuration]);
+
+  // Fallback simulator for procedural synth when no audio duration
   useEffect(() => {
     let interval: any;
-    if (isPlaying) {
+    if (isPlaying && (!currentTrack.source || currentTrack.source.trim() === '')) {
       interval = setInterval(() => {
         setCurrentTime((prev) => {
           const next = (prev + 1) % totalDuration;
@@ -52,7 +61,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, totalDuration]);
+  }, [isPlaying, totalDuration, currentTrack.source]);
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
@@ -63,7 +72,19 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newProgress = Number(e.target.value);
     setProgress(newProgress);
-    setCurrentTime(Math.floor((newProgress / 100) * totalDuration));
+    const dur = sound.getDuration() || totalDuration;
+    const seekSecs = (newProgress / 100) * dur;
+    setCurrentTime(seekSecs);
+    sound.seek(seekSecs);
+  };
+
+  const handleTogglePlayTrack = () => {
+    sound.playNavClick();
+    if (isPlaying) {
+      sound.pauseSoundtrack();
+    } else {
+      sound.playSoundtrack(currentTrack.source, currentTrack.synthType);
+    }
   };
 
   const handleSelectTrack = (index: number) => {
@@ -89,24 +110,30 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     handleSelectTrack(prevIndex);
   };
 
+  // Filtered tracks based on audio section
+  const availableSections = ['all', ...Array.from(new Set(tracks.map((t) => t.section)))];
+  const displayedTracks = selectedSection === 'all'
+    ? tracks
+    : tracks.filter((t) => t.section === selectedSection);
+
   return (
-    <section className="relative py-12 md:py-20 px-4 max-w-5xl mx-auto">
+    <section className="relative py-8 sm:py-16 md:py-20 px-3 sm:px-4 max-w-5xl mx-auto">
       {/* Section Header */}
-      <div className="text-center mb-10 md:mb-14">
-        <span className="text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-2">
-          <Music className="w-3.5 h-3.5" />
-          Multi-Section Soundtrack Studio
+      <div className="text-center mb-6 sm:mb-10 md:mb-14">
+        <span className="text-[10px] sm:text-xs font-serif-display uppercase tracking-widest text-[#ffdab9] flex items-center justify-center gap-1.5 mb-1.5 sm:mb-2">
+          <Music className="w-3.5 h-3.5 text-[#ffdab9]" />
+          Soundtracks For Doctor Paapa
         </span>
-        <h2 className="font-script text-4xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
-          Soundtracks For Meera
+        <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
+          Songs Dedicated to Her
         </h2>
-        <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-2 italic">
-          Multiple audio sections curated for every mood — from acoustic piano to music box and cozy lofi vibes.
+        <p className="font-serif-display text-xs sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-1 sm:mt-2 italic px-2">
+          Curated Tamil brother-sister anthems and soulful melodies honoring our journey from childhood school days to today.
         </p>
       </div>
 
       {/* Main Music Player Card */}
-      <div className="relative glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border border-[#f7e7ce]/20 overflow-hidden mb-10">
+      <div className="relative glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-8 md:p-10 shadow-2xl border border-[#f7e7ce]/20 overflow-hidden mb-8 sm:mb-10">
         {/* Ambient glowing radial behind vinyl */}
         <div
           className={`absolute -top-20 -left-20 w-80 h-80 rounded-full blur-3xl transition-opacity duration-700 pointer-events-none ${
@@ -114,73 +141,73 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
           }`}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-center">
           {/* Vinyl Record Display */}
-          <div className="relative flex justify-center items-center py-4">
+          <div className="relative flex justify-center items-center py-2 sm:py-4">
             {/* Soft halo glow when playing */}
             <div
-              className={`absolute w-56 h-56 sm:w-64 sm:h-64 rounded-full bg-gradient-to-tr from-[#b76e79]/40 via-[#ffdab9]/30 to-[#e6e6fa]/30 blur-xl transition-all duration-700 ${
+              className={`absolute w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full bg-gradient-to-tr from-[#b76e79]/40 via-[#ffdab9]/30 to-[#e6e6fa]/30 blur-xl transition-all duration-700 ${
                 isPlaying ? 'scale-110 opacity-80 animate-pulse-soft' : 'scale-90 opacity-20'
               }`}
             />
 
             {/* Tonearm needle */}
             <div
-              className={`absolute top-0 right-4 sm:right-10 z-20 transition-transform duration-700 origin-top-right ${
+              className={`absolute top-0 right-6 sm:right-10 z-20 transition-transform duration-700 origin-top-right ${
                 isPlaying ? 'rotate-12 translate-x-1' : '-rotate-12 translate-x-4'
               }`}
             >
-              <div className="w-3 h-10 bg-gradient-to-b from-stone-400 to-stone-600 rounded-sm shadow-md" />
-              <div className="w-1.5 h-16 bg-stone-300 mx-auto" />
-              <div className="w-4 h-3 bg-[#b76e79] rounded shadow" />
+              <div className="w-2.5 sm:w-3 h-8 sm:h-10 bg-gradient-to-b from-stone-400 to-stone-600 rounded-sm shadow-md" />
+              <div className="w-1 sm:w-1.5 h-12 sm:h-16 bg-stone-300 mx-auto" />
+              <div className="w-3.5 sm:w-4 h-2.5 sm:h-3 bg-[#b76e79] rounded shadow" />
             </div>
 
             {/* The Vinyl Disc */}
             <div
-              className={`relative w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-[#110515] p-2 shadow-2xl border-4 border-[#240a2c] flex items-center justify-center transition-all ${
+              className={`relative w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full bg-[#110515] p-2 shadow-2xl border-4 border-[#240a2c] flex items-center justify-center transition-all ${
                 isPlaying ? 'animate-spin-slow' : 'animate-spin-paused'
               }`}
             >
               {/* Vinyl Grooves concentric rings */}
-              <div className="absolute inset-4 rounded-full border border-stone-800/80 pointer-events-none" />
-              <div className="absolute inset-8 rounded-full border border-stone-800/80 pointer-events-none" />
-              <div className="absolute inset-12 rounded-full border border-stone-800/70 pointer-events-none" />
-              <div className="absolute inset-16 rounded-full border border-stone-800/60 pointer-events-none" />
-              <div className="absolute inset-20 rounded-full border border-stone-800/50 pointer-events-none" />
+              <div className="absolute inset-3 sm:inset-4 rounded-full border border-stone-800/80 pointer-events-none" />
+              <div className="absolute inset-6 sm:inset-8 rounded-full border border-stone-800/80 pointer-events-none" />
+              <div className="absolute inset-9 sm:inset-12 rounded-full border border-stone-800/70 pointer-events-none" />
+              <div className="absolute inset-12 sm:inset-16 rounded-full border border-stone-800/60 pointer-events-none" />
+              <div className="absolute inset-15 sm:inset-20 rounded-full border border-stone-800/50 pointer-events-none" />
 
               {/* Light reflection sheen across vinyl */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
 
               {/* Center Vinyl Label */}
-              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-[#914d57] via-[#c47c87] to-[#e4a4ad] p-[2px] shadow-lg flex items-center justify-center">
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-tr from-[#914d57] via-[#c47c87] to-[#e4a4ad] p-[2px] shadow-lg flex items-center justify-center">
                 <div className="w-full h-full rounded-full bg-[#300c37] flex flex-col items-center justify-center text-center p-1 border border-[#ffdab9]/30">
-                  <Sparkles className="w-3 h-3 text-[#ffdab9] mb-0.5" />
-                  <span className="font-script text-xs sm:text-sm text-[#fffdf9] font-bold leading-none">
+                  <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#ffdab9] mb-0.5" />
+                  <span className="font-script text-[11px] sm:text-xs md:text-sm text-[#fffdf9] font-bold leading-none">
                     Meera
                   </span>
-                  <span className="text-[7px] text-[#ffdab9]/80 font-mono tracking-tighter mt-0.5 uppercase">
+                  <span className="text-[6px] sm:text-[7px] text-[#ffdab9]/80 font-mono tracking-tighter mt-0.5 uppercase">
                     TRACK 0{currentTrackIndex + 1}
                   </span>
                   {/* Spindle hole */}
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#110515] border border-stone-600 mt-1" />
+                  <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#110515] border border-stone-600 mt-0.5 sm:mt-1" />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Player Controls & Equalizer */}
-          <div className="flex flex-col justify-center space-y-5 text-left">
+          <div className="flex flex-col justify-center space-y-4 sm:space-y-5 text-left">
             {/* Song Meta */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/30 text-[10px] text-[#ffdab9] font-serif-display uppercase tracking-widest font-semibold">
+              <div className="flex items-center gap-2 mb-1.5 sm:mb-2">
+                <span className="px-2 py-0.5 rounded-full bg-[#b76e79]/30 border border-[#ffdab9]/30 text-[9px] sm:text-[10px] text-[#ffdab9] font-serif-display uppercase tracking-widest font-semibold">
                   {currentTrack.section}
                 </span>
                 <span aria-hidden="true" className="text-white/30">·</span>
                 {isPlaying ? (
                   <span className="flex items-center gap-1.5 text-xs text-[#ffdab9] font-serif-display">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    <span>Now Playing Live</span>
+                    <span>Now Playing</span>
                   </span>
                 ) : (
                   <span className="text-xs text-[#e6e6fa]/60 font-serif-display italic">
@@ -189,21 +216,21 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                 )}
               </div>
 
-              <h3 className="font-serif-display text-2xl sm:text-3xl text-[#fffdf9] font-bold tracking-tight text-balance leading-snug">
+              <h3 className="font-serif-display text-xl sm:text-2xl md:text-3xl text-[#fffdf9] font-bold tracking-tight text-balance leading-snug">
                 {currentTrack.title}
               </h3>
 
-              <p className="font-serif-display text-xs sm:text-sm text-[#ffdab9]/80 mt-1 italic font-light">
+              <p className="font-serif-display text-xs sm:text-sm text-[#ffdab9]/80 mt-0.5 sm:mt-1 italic font-light">
                 {currentTrack.artist}
               </p>
 
-              <p className="text-xs text-[#e6e6fa]/70 font-sans mt-2 font-light">
+              <p className="text-xs text-[#e6e6fa]/70 font-sans mt-1.5 sm:mt-2 font-light">
                 {currentTrack.description}
               </p>
             </div>
 
             {/* Equalizer Waveform Visualization */}
-            <div className="flex items-end gap-1.5 h-10 py-1 px-3 rounded-xl bg-black/25 border border-white/5">
+            <div className="flex items-end gap-1 sm:gap-1.5 h-8 sm:h-10 py-1 px-2.5 sm:px-3 rounded-xl bg-black/25 border border-white/5">
               {[45, 80, 60, 95, 65, 90, 50, 100, 75, 55, 85, 70, 95, 50, 75, 90].map(
                 (baseHeight, i) => (
                   <div
@@ -234,31 +261,28 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                 onChange={handleSeek}
                 className="w-full h-1.5 bg-white/15 rounded-lg appearance-none cursor-pointer accent-[#b76e79]"
               />
-              <div className="flex justify-between text-[11px] font-mono text-[#e6e6fa]/60">
+              <div className="flex justify-between text-[10px] sm:text-[11px] font-mono text-[#e6e6fa]/60">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(totalDuration)}</span>
               </div>
             </div>
 
             {/* Playback Action Buttons */}
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between pt-1 sm:pt-2">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={handlePrevTrack}
                   title="Previous track"
-                  className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer active:scale-95"
                 >
                   <SkipBack className="w-4 h-4" />
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    sound.playNavClick();
-                    onTogglePlay();
-                  }}
-                  className="p-4 rounded-full bg-gradient-to-r from-[#b76e79] to-[#914d57] hover:from-[#c47c87] hover:to-[#a4535e] text-[#fffdf9] shadow-lg shadow-[#b76e79]/40 border border-[#f7e7ce]/30 transition-all duration-300 transform active:scale-95 cursor-pointer"
+                  onClick={handleTogglePlayTrack}
+                  className="min-h-[48px] min-w-[48px] p-3.5 sm:p-4 rounded-full bg-gradient-to-r from-[#b76e79] to-[#914d57] hover:from-[#c47c87] hover:to-[#a4535e] text-[#fffdf9] shadow-lg shadow-[#b76e79]/40 border border-[#f7e7ce]/30 transition-all duration-300 transform active:scale-95 cursor-pointer flex items-center justify-center"
                   aria-label={isPlaying ? 'Pause soundtrack' : 'Play soundtrack'}
                 >
                   {isPlaying ? (
@@ -272,15 +296,15 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                   type="button"
                   onClick={handleNextTrack}
                   title="Next track"
-                  className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer"
+                  className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-[#f7e7ce] transition-all cursor-pointer active:scale-95"
                 >
                   <SkipForward className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-[#e6e6fa]/60">
-                <Volume2 className="w-4 h-4 text-[#ffdab9]" />
-                <span className="font-sans capitalize">{currentTrack.synthType} Mode</span>
+              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[#e6e6fa]/60">
+                <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#ffdab9]" />
+                <span className="font-sans capitalize">Original Master Audio</span>
               </div>
             </div>
           </div>
@@ -293,7 +317,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
           <div className="flex items-center gap-2">
             <ListMusic className="w-4 h-4 text-[#ffdab9]" />
             <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-[#fffdf9]">
-              Curated Audio Sections
+              Curated Audio Tracks
             </h3>
           </div>
 
