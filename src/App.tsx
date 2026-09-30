@@ -272,7 +272,7 @@ export default function App() {
         )}
 
         {/* Content Section Container */}
-        <main className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 pb-28 md:pb-32">
+        <main className="flex-1 w-full max-w-6xl mx-auto px-3 sm:px-4 pb-48 sm:pb-40 md:pb-32">
           {activeSection === 'home' && (
             <div className="animate-fade-in">
               <HeroSection
@@ -333,7 +333,7 @@ export default function App() {
         </main>
 
         {/* Mobile Swipe Pagination Dots Indicator (Above Dock) */}
-        <div className="fixed bottom-18 left-0 right-0 z-30 flex flex-col items-center justify-center pointer-events-none pb-1 md:hidden">
+        <div className="fixed bottom-[64px] sm:bottom-[70px] left-0 right-0 z-30 flex flex-col items-center justify-center pointer-events-none pb-1 md:hidden">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-sm pointer-events-auto">
             <span className="text-[9px] font-mono text-[#ffdab9]/80 mr-1">
               Swipe ◀ ▶
