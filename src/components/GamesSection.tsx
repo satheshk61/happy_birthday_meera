@@ -999,7 +999,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
 
             {/* Instruction Banner */}
             <div className="text-center mb-4 sm:mb-6">
-              <p className="text-xs sm:text-sm font-serif-display text-[#f7e7ce]/80 italic px-2">
+              <p className="text-sm sm:text-base font-serif-display text-[#f7e7ce]/90 italic px-2">
                 Tap each floating balloon to burst it and reveal the hidden secret wish prepared for you!
               </p>
             </div>
@@ -1525,7 +1525,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
           <h4 className="font-serif-display text-lg sm:text-2xl text-[#fffdf9] font-bold mb-1.5 sm:mb-2">
             Read The Complete Letter & 6-Phase Timeline
           </h4>
-          <p className="text-xs sm:text-sm text-[#f5ecfc] max-w-md mx-auto mb-4 sm:mb-5 leading-relaxed px-1">
+          <p className="text-sm sm:text-base text-[#f5ecfc] max-w-md mx-auto mb-4 sm:mb-5 leading-relaxed px-2">
             The personal handwritten letter from your brother and friend, along with the interactive chronological milestone chronicle.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-3">
