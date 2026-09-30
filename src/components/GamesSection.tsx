@@ -864,7 +864,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
     targetBasketXRef.current = Math.max(30, Math.min(rect.width - 30, relativeX));
   };
   return (
-    <section className="relative min-h-[calc(100dvh-5rem)] flex flex-col items-center justify-start px-2 sm:px-4 py-4 sm:py-8 max-w-5xl mx-auto w-full">
+    <section className="relative min-h-[calc(100dvh-5rem)] flex flex-col items-center justify-start px-2 sm:px-4 py-4 sm:py-8 max-w-5xl mx-auto w-full pb-20 sm:pb-12">
       {/* ======================================================== */}
       {/* ARCADE GAMIFICATION BAR: XP & PLAYER LEVEL               */}
       {/* ======================================================== */}
@@ -1128,7 +1128,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
           </div>
 
           {/* Cards Grid */}
-          <div className="w-full p-3.5 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/30 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-8">
+          <div className="w-full p-3.5 sm:p-8 rounded-2xl sm:rounded-3xl bg-black/30 border border-[#f7e7ce]/20 backdrop-blur-xl relative overflow-hidden shadow-2xl mb-12 pb-10 sm:pb-8">
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3.5 max-w-xl mx-auto">
               {memoryCards.map((card, idx) => {
                 const pairDef = MEMORY_PAIR_DEFINITIONS.find((p) => p.pairKey === card.pairKey);
@@ -1142,7 +1142,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                     onClick={() => handleCardClick(idx)}
                     disabled={isShown || isProcessing}
                     className={`aspect-square rounded-xl sm:rounded-2xl relative cursor-pointer select-none transition-all duration-300 transform perspective-1000 ${
-                      isShown ? 'rotate-y-180' : 'hover:scale-105 active:scale-95'
+                      isShown ? 'scale-100 shadow-md' : 'hover:scale-105 active:scale-95'
                     }`}
                   >
                     {/* Card Front (Face-Up) */}
