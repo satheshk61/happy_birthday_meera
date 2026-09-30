@@ -35,6 +35,21 @@ class SoundSystem {
   private musicStep: number = 0;
   private customAudio: HTMLAudioElement | null = null;
   private musicListeners: ((isPlaying: boolean) => void)[] = [];
+  private tabId: string = Math.random().toString(36).substring(2);
+  private broadcastChannel: BroadcastChannel | null = null;
+
+  constructor() {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        this.broadcastChannel = new BroadcastChannel('meera_audio_channel');
+        this.broadcastChannel.onmessage = (event) => {
+          if (event.data?.type === 'PLAY' && event.data?.tabId !== this.tabId) {
+            this.pauseSoundtrack();
+          }
+        };
+      } catch {}
+    }
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -707,12 +722,37 @@ class SoundSystem {
     const effectiveUrl = sourceUrl || (this.playlist[this.currentTrackIndex]?.source) || this.activeSourceUrl;
     if (!effectiveUrl || effectiveUrl.trim() === '') return;
 
+    // Strict multi-song prevention: pause any other audio elements in window or DOM
+    if (typeof window !== 'undefined') {
+      const win = window as any;
+      if (win.__meera_active_audio__ && win.__meera_active_audio__ !== this.customAudio) {
+        try {
+          win.__meera_active_audio__.pause();
+          win.__meera_active_audio__.src = '';
+        } catch {}
+      }
+      try {
+        document.querySelectorAll('audio').forEach((el) => {
+          if (el !== this.customAudio && !el.paused) {
+            el.pause();
+          }
+        });
+      } catch {}
+    }
+
     const isSameTrack = this.customAudio && this.isSameSource(this.customAudio.src, effectiveUrl);
 
     // If it's already the active track and we are not forcing a restart from 0:
     if (this.customAudio && isSameTrack && !forceRestart) {
       this.resumeSoundtrack(effectiveUrl);
       return;
+    }
+
+    // Always pause the current audio before switching tracks to avoid audio overlap
+    if (this.customAudio) {
+      try {
+        this.customAudio.pause();
+      } catch {}
     }
 
     this.activeSourceUrl = effectiveUrl;
@@ -743,10 +783,19 @@ class SoundSystem {
         this.customAudio.currentTime = 0;
       }
 
+      if (typeof window !== 'undefined') {
+        (window as any).__meera_active_audio__ = this.customAudio;
+      }
+
       this.customAudio.muted = this.isMuted;
       this.customAudio.play().then(() => {
         this.isMusicPlaying = true;
         this.notifyMusicListeners(true);
+        if (this.broadcastChannel) {
+          try {
+            this.broadcastChannel.postMessage({ type: 'PLAY', tabId: this.tabId });
+          } catch {}
+        }
       }).catch((err) => {
         // Autoplay policy or user interaction pending — wait for user click without playing any fake synth
         console.warn('Audio waiting for user gesture:', err);
@@ -785,4 +834,9 @@ class SoundSystem {
   }
 }
 
-export const sound = new SoundSystem();
+// Global singleton pattern to prevent duplicate audio systems on Vite HMR
+const existingInstance = typeof window !== 'undefined' ? (window as any).__meera_sound_system__ : null;
+export const sound: SoundSystem = existingInstance || new SoundSystem();
+if (typeof window !== 'undefined') {
+  (window as any).__meera_sound_system__ = sound;
+}
