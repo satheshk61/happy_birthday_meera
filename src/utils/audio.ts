@@ -517,13 +517,16 @@ class SoundSystem {
   // --- Multi-Section Ambient Music & Custom Audio Player ---
   private activeSourceUrl: string | undefined = undefined;
   private timeListeners: ((current: number, duration: number) => void)[] = [];
+  private lastPlaybackPosition: number = 0;
 
   public getAudioElement(): HTMLAudioElement | null {
     return this.customAudio;
   }
 
   public getCurrentTime(): number {
-    return this.customAudio ? this.customAudio.currentTime : 0;
+    return this.customAudio && !isNaN(this.customAudio.currentTime)
+      ? this.customAudio.currentTime
+      : this.lastPlaybackPosition;
   }
 
   public getDuration(): number {
@@ -531,8 +534,14 @@ class SoundSystem {
   }
 
   public seek(seconds: number) {
-    if (this.customAudio && !isNaN(seconds)) {
-      this.customAudio.currentTime = seconds;
+    if (!isNaN(seconds)) {
+      this.lastPlaybackPosition = seconds;
+      if (this.customAudio) {
+        try {
+          this.customAudio.currentTime = seconds;
+        } catch {}
+      }
+      this.notifyTimeListeners(seconds, this.getDuration());
     }
   }
 
@@ -547,22 +556,79 @@ class SoundSystem {
     this.timeListeners.forEach((fn) => fn(current, duration));
   }
 
-  public toggleSoundtrack(sourceUrl?: string, trackType?: 'piano' | 'musicbox' | 'lofi' | 'celebration'): boolean {
+  // Robust URL / source comparator handling URL encoding, query strings, and base names
+  private isSameSource(srcA: string | undefined, srcB: string | undefined): boolean {
+    if (!srcA || !srcB) return false;
+    if (srcA === srcB) return true;
+    try {
+      const cleanA = decodeURIComponent(srcA).split('?')[0].split('#')[0].trim();
+      const cleanB = decodeURIComponent(srcB).split('?')[0].split('#')[0].trim();
+      if (cleanA === cleanB) return true;
+      if (cleanA.endsWith(cleanB) || cleanB.endsWith(cleanA)) return true;
+      const fileA = cleanA.substring(cleanA.lastIndexOf('/') + 1);
+      const fileB = cleanB.substring(cleanB.lastIndexOf('/') + 1);
+      if (fileA && fileB && fileA === fileB) return true;
+    } catch {
+      if (srcA.endsWith(srcB) || srcB.endsWith(srcA)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Toggle music soundtrack playback.
+   * If playing -> Pauses audio and preserves the exact playback timestamp.
+   * If paused -> Resumes audio seamlessly from the exact stopped timestamp.
+   */
+  public toggleSoundtrack(sourceUrl?: string): boolean {
     if (this.isMusicPlaying) {
       this.pauseSoundtrack();
       return false;
     } else {
-      if (this.playlist && this.playlist.length > 0 && (!sourceUrl || sourceUrl.trim() === '')) {
-        const cur = this.playlist[this.currentTrackIndex] || this.playlist[0];
-        this.playSoundtrack(cur.source, cur.synthType || 'piano');
+      if (sourceUrl && sourceUrl.trim() !== '' && !this.isSameSource(sourceUrl, this.activeSourceUrl)) {
+        this.playSoundtrack(sourceUrl, true);
       } else {
-        this.playSoundtrack(sourceUrl || this.activeSourceUrl, trackType || this.currentTrackType);
+        this.resumeSoundtrack();
       }
       return true;
     }
   }
 
-  
+  /**
+   * Resume soundtrack from the exact position it was stopped/paused.
+   */
+  public resumeSoundtrack(sourceUrl?: string): boolean {
+    const cur = this.playlist[this.currentTrackIndex] || this.playlist[0];
+    const targetUrl = sourceUrl || cur?.source || this.activeSourceUrl;
+    if (!targetUrl) return false;
+
+    // If audio element already exists and matches current track, resume directly!
+    if (this.customAudio && this.isSameSource(this.customAudio.src, targetUrl)) {
+      this.customAudio.muted = this.isMuted;
+
+      // Ensure the timestamp is preserved if browser momentarily reset it
+      if (this.lastPlaybackPosition > 0 && this.customAudio.currentTime < 0.1) {
+        try {
+          this.customAudio.currentTime = this.lastPlaybackPosition;
+        } catch {}
+      }
+
+      this.customAudio
+        .play()
+        .then(() => {
+          this.isMusicPlaying = true;
+          this.notifyMusicListeners(true);
+        })
+        .catch((err) => {
+          console.warn('Audio resume waiting for user interaction:', err);
+        });
+      return true;
+    }
+
+    // Otherwise load track fresh
+    this.playSoundtrack(targetUrl, false);
+    return true;
+  }
+
   public setPlaylist(items: PlaylistItem[], startIndex = 0) {
     this.playlist = items;
     if (startIndex >= 0 && startIndex < items.length) {
@@ -593,26 +659,32 @@ class SoundSystem {
   public playNextTrack() {
     if (!this.playlist || this.playlist.length === 0) return;
     this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+    this.lastPlaybackPosition = 0;
     const nextItem = this.playlist[this.currentTrackIndex];
     this.notifyTrackChange();
-    this.playSoundtrack(nextItem.source, nextItem.synthType || 'piano');
+    this.playSoundtrack(nextItem.source, true);
   }
 
   public playPrevTrack() {
     if (!this.playlist || this.playlist.length === 0) return;
     this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+    this.lastPlaybackPosition = 0;
     const prevItem = this.playlist[this.currentTrackIndex];
     this.notifyTrackChange();
-    this.playSoundtrack(prevItem.source, prevItem.synthType || 'piano');
+    this.playSoundtrack(prevItem.source, true);
   }
 
-  public playTrackByIndex(index: number) {
+  public playTrackByIndex(index: number, forceRestart = false) {
     if (!this.playlist || this.playlist.length === 0) return;
     if (index >= 0 && index < this.playlist.length) {
+      const isSwitchingTrack = this.currentTrackIndex !== index;
       this.currentTrackIndex = index;
+      if (isSwitchingTrack || forceRestart) {
+        this.lastPlaybackPosition = 0;
+      }
       const track = this.playlist[index];
       this.notifyTrackChange();
-      this.playSoundtrack(track.source, track.synthType || 'piano');
+      this.playSoundtrack(track.source, isSwitchingTrack || forceRestart);
     }
   }
 
@@ -624,18 +696,27 @@ class SoundSystem {
     return this.currentTrackType;
   }
 
-  public playTrack(trackType?: string, sourceUrl?: string) {
+  public playTrack(_trackType?: string, sourceUrl?: string) {
     if (this.isMusicPlaying) {
       this.pauseSoundtrack();
     }
     this.playSoundtrack(sourceUrl);
   }
 
-  public playSoundtrack(sourceUrl?: string, _trackType?: string) {
+  public playSoundtrack(sourceUrl?: string, forceRestart = false) {
     const effectiveUrl = sourceUrl || (this.playlist[this.currentTrackIndex]?.source) || this.activeSourceUrl;
     if (!effectiveUrl || effectiveUrl.trim() === '') return;
 
+    const isSameTrack = this.customAudio && this.isSameSource(this.customAudio.src, effectiveUrl);
+
+    // If it's already the active track and we are not forcing a restart from 0:
+    if (this.customAudio && isSameTrack && !forceRestart) {
+      this.resumeSoundtrack(effectiveUrl);
+      return;
+    }
+
     this.activeSourceUrl = effectiveUrl;
+    this.lastPlaybackPosition = 0;
 
     try {
       if (!this.customAudio) {
@@ -644,7 +725,8 @@ class SoundSystem {
         this.customAudio.preload = 'auto';
 
         this.customAudio.addEventListener('timeupdate', () => {
-          if (this.customAudio) {
+          if (this.customAudio && !isNaN(this.customAudio.currentTime)) {
+            this.lastPlaybackPosition = this.customAudio.currentTime;
             this.notifyTimeListeners(this.customAudio.currentTime, this.customAudio.duration || 0);
           }
         });
@@ -655,11 +737,10 @@ class SoundSystem {
         });
       } else {
         this.customAudio.loop = false;
-        const currentSrc = this.customAudio.src;
-        if (!currentSrc || (!currentSrc.endsWith(encodeURI(effectiveUrl)) && currentSrc !== effectiveUrl)) {
+        if (!isSameTrack) {
           this.customAudio.src = effectiveUrl;
-          this.customAudio.currentTime = 0;
         }
+        this.customAudio.currentTime = 0;
       }
 
       this.customAudio.muted = this.isMuted;
@@ -675,7 +756,7 @@ class SoundSystem {
     }
   }
 
-    public pauseSoundtrack() {
+  public pauseSoundtrack() {
     this.isMusicPlaying = false;
     this.notifyMusicListeners(false);
 
@@ -685,6 +766,9 @@ class SoundSystem {
     }
 
     if (this.customAudio) {
+      if (!isNaN(this.customAudio.currentTime)) {
+        this.lastPlaybackPosition = this.customAudio.currentTime;
+      }
       this.customAudio.pause();
     }
   }
