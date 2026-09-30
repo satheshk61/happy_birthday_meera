@@ -11,7 +11,22 @@
  * Completely robust against browser autoplay blocks and requires no external MP3 hosting.
  */
 
+export interface PlaylistItem {
+  id?: string;
+  source: string;
+  synthType?: 'piano' | 'musicbox' | 'lofi' | 'celebration';
+  title?: string;
+  artist?: string;
+  duration?: number;
+  section?: string;
+  description?: string;
+  mood?: string;
+}
+
 class SoundSystem {
+  private playlist: PlaylistItem[] = [];
+  private currentTrackIndex: number = 0;
+  private trackChangeListeners: ((index: number, track: PlaylistItem | null) => void)[] = [];
   private ctx: AudioContext | null = null;
   public isMuted: boolean = false;
   private musicGain: GainNode | null = null;
@@ -537,8 +552,67 @@ class SoundSystem {
       this.pauseSoundtrack();
       return false;
     } else {
-      this.playSoundtrack(sourceUrl || this.activeSourceUrl, trackType || this.currentTrackType);
+      if (this.playlist && this.playlist.length > 0 && (!sourceUrl || sourceUrl.trim() === '')) {
+        const cur = this.playlist[this.currentTrackIndex] || this.playlist[0];
+        this.playSoundtrack(cur.source, cur.synthType || 'piano');
+      } else {
+        this.playSoundtrack(sourceUrl || this.activeSourceUrl, trackType || this.currentTrackType);
+      }
       return true;
+    }
+  }
+
+  
+  public setPlaylist(items: PlaylistItem[], startIndex = 0) {
+    this.playlist = items;
+    if (startIndex >= 0 && startIndex < items.length) {
+      this.currentTrackIndex = startIndex;
+    }
+  }
+
+  public getPlaylist(): PlaylistItem[] {
+    return this.playlist;
+  }
+
+  public getCurrentTrackIndex(): number {
+    return this.currentTrackIndex;
+  }
+
+  public subscribeToTrackChange(listener: (index: number, track: PlaylistItem | null) => void) {
+    this.trackChangeListeners.push(listener);
+    return () => {
+      this.trackChangeListeners = this.trackChangeListeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyTrackChange() {
+    const cur = this.playlist[this.currentTrackIndex] || null;
+    this.trackChangeListeners.forEach((fn) => fn(this.currentTrackIndex, cur));
+  }
+
+  public playNextTrack() {
+    if (!this.playlist || this.playlist.length === 0) return;
+    this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+    const nextItem = this.playlist[this.currentTrackIndex];
+    this.notifyTrackChange();
+    this.playSoundtrack(nextItem.source, nextItem.synthType || 'piano');
+  }
+
+  public playPrevTrack() {
+    if (!this.playlist || this.playlist.length === 0) return;
+    this.currentTrackIndex = (this.currentTrackIndex - 1 + this.playlist.length) % this.playlist.length;
+    const prevItem = this.playlist[this.currentTrackIndex];
+    this.notifyTrackChange();
+    this.playSoundtrack(prevItem.source, prevItem.synthType || 'piano');
+  }
+
+  public playTrackByIndex(index: number) {
+    if (!this.playlist || this.playlist.length === 0) return;
+    if (index >= 0 && index < this.playlist.length) {
+      this.currentTrackIndex = index;
+      const track = this.playlist[index];
+      this.notifyTrackChange();
+      this.playSoundtrack(track.source, track.synthType || 'piano');
     }
   }
 
@@ -572,17 +646,23 @@ class SoundSystem {
 
         if (!this.customAudio) {
           this.customAudio = new Audio(sourceUrl);
-          this.customAudio.loop = true;
+          this.customAudio.loop = false; // NEVER LOOP SINGLE SONG! Auto-advances on completion
           this.customAudio.addEventListener('timeupdate', () => {
             if (this.customAudio) {
               this.notifyTimeListeners(this.customAudio.currentTime, this.customAudio.duration || 0);
             }
           });
           this.customAudio.addEventListener('ended', () => {
-            this.isMusicPlaying = false;
-            this.notifyMusicListeners(false);
+            // Auto advance to next song instead of repeating!
+            if (this.playlist && this.playlist.length > 1) {
+              this.playNextTrack();
+            } else {
+              this.isMusicPlaying = false;
+              this.notifyMusicListeners(false);
+            }
           });
         } else {
+          this.customAudio.loop = false;
           // If the audio source has changed, point to the new track and reset time
           const currentSrc = this.customAudio.src;
           if (!currentSrc || (!currentSrc.endsWith(encodeURI(sourceUrl)) && currentSrc !== sourceUrl)) {
