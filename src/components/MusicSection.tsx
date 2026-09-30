@@ -61,21 +61,6 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     };
   }, [totalDuration]);
 
-  // Fallback simulator for procedural synth when no audio duration
-  useEffect(() => {
-    let interval: any;
-    if (isPlaying && (!currentTrack.source || currentTrack.source.trim() === '')) {
-      interval = setInterval(() => {
-        setCurrentTime((prev) => {
-          const next = (prev + 1) % totalDuration;
-          setProgress((next / totalDuration) * 100);
-          return next;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, totalDuration, currentTrack.source]);
-
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
     const remainder = Math.floor(secs % 60);
@@ -135,7 +120,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
         <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
           Songs Dedicated to Her
         </h2>
-        <p className="font-serif-display text-xs sm:text-base text-[#e6e6fa]/70 max-w-lg mx-auto mt-1 sm:mt-2 italic px-2">
+        <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/85 max-w-lg mx-auto mt-1.5 italic px-2">
           Curated Tamil brother-sister anthems and soulful melodies honoring our journey from childhood school days to today.
         </p>
       </div>
@@ -233,7 +218,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
               </p>
 
               <div className="mt-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <p className="text-xs sm:text-[13px] text-[#f7e7ce] font-serif-display leading-relaxed">
+                <p className="text-sm sm:text-base text-[#f7e7ce] font-serif-display leading-relaxed">
                   {currentTrack.description}
                 </p>
               </div>
@@ -400,7 +385,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs text-[#f7e7ce]/90 font-serif-display italic my-2.5 leading-relaxed">
+                <p className="text-sm text-[#f7e7ce]/95 font-serif-display italic my-2.5 leading-relaxed">
                   "{track.description}"
                 </p>
 
