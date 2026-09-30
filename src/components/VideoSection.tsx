@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Video, Maximize, Upload, Sparkles, Film } from 'lucide-react';
 import { BirthdayConfig } from '../birthdayConfig';
 import { sound } from '../utils/audio';
@@ -14,6 +14,15 @@ export const VideoSection: React.FC<VideoSectionProps> = ({ config }) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeVideoSrc = customVideoUrl || config.video.source;
+
+  // Pause video on unmount to prevent audio lingering in background
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        try { videoRef.current.pause(); } catch {}
+      }
+    };
+  }, []);
 
   const handleTogglePlay = () => {
     sound.playNavClick();
