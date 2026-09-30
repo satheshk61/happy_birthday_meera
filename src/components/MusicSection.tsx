@@ -33,6 +33,19 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
 
   const totalDuration = sound.getDuration() || currentTrack.duration || 268;
 
+  // Subscribe to track changes (auto-advance to next song)
+  useEffect(() => {
+    if (tracks && tracks.length > 0) {
+      sound.setPlaylist(tracks);
+    }
+    const unsubTrack = sound.subscribeToTrackChange((idx) => {
+      setCurrentTrackIndex(idx);
+      setCurrentTime(0);
+      setProgress(0);
+    });
+    return () => unsubTrack();
+  }, [tracks]);
+
   // Real-time audio subscription for MP3 track progress
   useEffect(() => {
     const unsubTime = sound.subscribeToTime((curr, dur) => {
@@ -83,7 +96,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     if (isPlaying) {
       sound.pauseSoundtrack();
     } else {
-      sound.playSoundtrack(currentTrack.source, currentTrack.synthType);
+      sound.playTrackByIndex(currentTrackIndex);
     }
   };
 
@@ -92,22 +105,17 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     setCurrentTrackIndex(index);
     setCurrentTime(0);
     setProgress(0);
-    const track = tracks[index];
-    if (track) {
-      sound.playTrack(track.synthType, track.source);
-    }
+    sound.playTrackByIndex(index);
   };
 
   const handleNextTrack = () => {
     sound.playNavClick();
-    const nextIndex = (currentTrackIndex + 1) % tracks.length;
-    handleSelectTrack(nextIndex);
+    sound.playNextTrack();
   };
 
   const handlePrevTrack = () => {
     sound.playNavClick();
-    const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-    handleSelectTrack(prevIndex);
+    sound.playPrevTrack();
   };
 
   // Filtered tracks based on audio section
