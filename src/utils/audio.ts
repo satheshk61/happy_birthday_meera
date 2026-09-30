@@ -624,202 +624,58 @@ class SoundSystem {
     return this.currentTrackType;
   }
 
-  public playTrack(trackType: 'piano' | 'musicbox' | 'lofi' | 'celebration', sourceUrl?: string) {
-    this.currentTrackType = trackType;
-    this.activeSourceUrl = sourceUrl;
+  public playTrack(trackType?: string, sourceUrl?: string) {
     if (this.isMusicPlaying) {
       this.pauseSoundtrack();
     }
-    this.playSoundtrack(sourceUrl, trackType);
+    this.playSoundtrack(sourceUrl);
   }
 
-  public playSoundtrack(sourceUrl?: string, trackType: 'piano' | 'musicbox' | 'lofi' | 'celebration' = 'piano') {
-    this.currentTrackType = trackType;
-    this.activeSourceUrl = sourceUrl;
+  public playSoundtrack(sourceUrl?: string, _trackType?: string) {
+    const effectiveUrl = sourceUrl || (this.playlist[this.currentTrackIndex]?.source) || this.activeSourceUrl;
+    if (!effectiveUrl || effectiveUrl.trim() === '') return;
 
-    if (sourceUrl && sourceUrl.trim() !== '') {
-      try {
-        if (this.musicInterval) {
-          clearInterval(this.musicInterval);
-          this.musicInterval = null;
-        }
+    this.activeSourceUrl = effectiveUrl;
 
-        if (!this.customAudio) {
-          this.customAudio = new Audio(sourceUrl);
-          this.customAudio.loop = false; // NEVER LOOP SINGLE SONG! Auto-advances on completion
-          this.customAudio.addEventListener('timeupdate', () => {
-            if (this.customAudio) {
-              this.notifyTimeListeners(this.customAudio.currentTime, this.customAudio.duration || 0);
-            }
-          });
-          this.customAudio.addEventListener('ended', () => {
-            // Auto advance to next song instead of repeating!
-            if (this.playlist && this.playlist.length > 1) {
-              this.playNextTrack();
-            } else {
-              this.isMusicPlaying = false;
-              this.notifyMusicListeners(false);
-            }
-          });
-        } else {
-          this.customAudio.loop = false;
-          // If the audio source has changed, point to the new track and reset time
-          const currentSrc = this.customAudio.src;
-          if (!currentSrc || (!currentSrc.endsWith(encodeURI(sourceUrl)) && currentSrc !== sourceUrl)) {
-            this.customAudio.src = sourceUrl;
-            this.customAudio.currentTime = 0;
+    try {
+      if (!this.customAudio) {
+        this.customAudio = new Audio(effectiveUrl);
+        this.customAudio.loop = false; // NEVER repeat one song — loop to next song in playlist!
+        this.customAudio.preload = 'auto';
+
+        this.customAudio.addEventListener('timeupdate', () => {
+          if (this.customAudio) {
+            this.notifyTimeListeners(this.customAudio.currentTime, this.customAudio.duration || 0);
           }
-        }
-
-        this.customAudio.muted = this.isMuted;
-        this.customAudio.play().then(() => {
-          this.isMusicPlaying = true;
-          this.notifyMusicListeners(true);
-        }).catch((err) => {
-          console.warn('Audio play restricted or autoplay policy, falling back to synth:', err);
-          this.startSynthMelody(trackType);
         });
-        return;
-      } catch (err) {
-        console.warn('Audio play error, falling back to synth:', err);
-        this.startSynthMelody(trackType);
-        return;
-      }
-    }
 
-    if (this.isMusicPlaying) return;
-    this.startSynthMelody(trackType);
-  }
-
-  private startSynthMelody(trackType: 'piano' | 'musicbox' | 'lofi' | 'celebration' = 'piano') {
-    const ctx = this.getContext();
-    if (!ctx) return;
-
-    this.isMusicPlaying = true;
-    this.notifyMusicListeners(true);
-
-    if (!this.musicGain) {
-      this.musicGain = ctx.createGain();
-      this.musicGain.gain.setValueAtTime(this.isMuted ? 0 : 0.2, ctx.currentTime);
-      this.musicGain.connect(ctx.destination);
-    }
-
-    if (this.musicInterval) clearInterval(this.musicInterval);
-
-    // Track 1: 'piano' - Serene acoustic arpeggio pattern (Key of D major / B minor)
-    const pianoScale = [293.66, 369.99, 440.00, 493.88, 554.37, 587.33, 659.25, 739.99];
-    const pianoSequence = [
-      0, 2, 4, 5, 2, 4, 3, 1,
-      0, 3, 5, 7, 4, 2, 1, 0,
-      1, 3, 5, 6, 3, 5, 4, 2,
-      0, 2, 4, 7, 5, 3, 2, 0
-    ];
-    const pianoBass = [146.83, 196.00, 220.00, 164.81];
-
-    // Track 2: 'musicbox' - Twinkling music box celesta pattern (Key of G major)
-    const musicboxScale = [587.33, 659.25, 783.99, 880.00, 987.77, 1046.50, 1174.66, 1318.51];
-    const musicboxSequence = [
-      2, 4, 6, 5, 3, 5, 4, 2,
-      1, 3, 5, 7, 5, 3, 2, 1,
-      0, 2, 4, 6, 4, 2, 1, 0,
-      3, 5, 7, 6, 4, 2, 1, 0
-    ];
-    const musicboxBass = [196.00, 246.94, 293.66, 220.00];
-
-    // Track 3: 'lofi' - Warm cozy evening lofi chords (Key of F major 7 / D minor 9)
-    const lofiScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 523.25, 587.33];
-    const lofiSequence = [
-      0, 3, 2, 5, 1, 4, 3, 6,
-      2, 5, 4, 7, 3, 6, 5, 4,
-      1, 4, 3, 5, 0, 3, 2, 4,
-      2, 4, 6, 5, 3, 1, 2, 0
-    ];
-    const lofiBass = [130.81, 146.83, 164.81, 174.61];
-
-    // Track 4: 'celebration' - Radiant, celebratory festive tempo (Key of C major)
-    const celebScale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50];
-    const celebSequence = [
-      0, 2, 4, 7, 4, 5, 6, 7,
-      5, 4, 2, 0, 3, 5, 7, 6,
-      4, 6, 7, 5, 3, 5, 4, 2,
-      0, 4, 7, 6, 5, 3, 2, 0
-    ];
-    const celebBass = [130.81, 174.61, 196.00, 220.00];
-
-    let currentScale = pianoScale;
-    let currentSequence = pianoSequence;
-    let currentBass = pianoBass;
-    let stepTempo = 450;
-    let oscWave: OscillatorType = 'sine';
-
-    if (trackType === 'musicbox') {
-      currentScale = musicboxScale;
-      currentSequence = musicboxSequence;
-      currentBass = musicboxBass;
-      stepTempo = 380;
-      oscWave = 'triangle';
-    } else if (trackType === 'lofi') {
-      currentScale = lofiScale;
-      currentSequence = lofiSequence;
-      currentBass = lofiBass;
-      stepTempo = 520;
-      oscWave = 'sine';
-    } else if (trackType === 'celebration') {
-      currentScale = celebScale;
-      currentSequence = celebSequence;
-      currentBass = celebBass;
-      stepTempo = 340;
-      oscWave = 'triangle';
-    }
-
-    this.musicInterval = setInterval(() => {
-      if (!this.isMusicPlaying || !this.ctx || this.isMuted) return;
-      const now = this.ctx.currentTime;
-      const noteIndex = currentSequence[this.musicStep % currentSequence.length];
-      const freq = currentScale[noteIndex];
-
-      // Play melody note
-      const osc = this.ctx.createOscillator();
-      const noteGain = this.ctx.createGain();
-
-      osc.type = oscWave;
-      osc.frequency.setValueAtTime(freq, now);
-
-      noteGain.gain.setValueAtTime(0, now);
-      noteGain.gain.linearRampToValueAtTime(0.08, now + 0.03);
-      noteGain.gain.exponentialRampToValueAtTime(0.0001, now + (trackType === 'musicbox' ? 0.75 : 1.1));
-
-      osc.connect(noteGain);
-      if (this.musicGain) noteGain.connect(this.musicGain);
-
-      osc.start(now);
-      osc.stop(now + 1.2);
-
-      // Play warm bass note every 8 steps
-      if (this.musicStep % 8 === 0) {
-        const bassOsc = this.ctx.createOscillator();
-        const bassGain = this.ctx.createGain();
-        const bassFreq = currentBass[(Math.floor(this.musicStep / 8)) % currentBass.length];
-
-        bassOsc.type = 'triangle';
-        bassOsc.frequency.setValueAtTime(bassFreq, now);
-
-        bassGain.gain.setValueAtTime(0, now);
-        bassGain.gain.linearRampToValueAtTime(0.12, now + 0.08);
-        bassGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
-
-        bassOsc.connect(bassGain);
-        if (this.musicGain) bassGain.connect(this.musicGain);
-
-        bassOsc.start(now);
-        bassOsc.stop(now + 2.3);
+        // CONTINUOUS PLAYLIST LOOP: When song completes, advance to next song!
+        this.customAudio.addEventListener('ended', () => {
+          this.playNextTrack();
+        });
+      } else {
+        this.customAudio.loop = false;
+        const currentSrc = this.customAudio.src;
+        if (!currentSrc || (!currentSrc.endsWith(encodeURI(effectiveUrl)) && currentSrc !== effectiveUrl)) {
+          this.customAudio.src = effectiveUrl;
+          this.customAudio.currentTime = 0;
+        }
       }
 
-      this.musicStep++;
-    }, stepTempo);
+      this.customAudio.muted = this.isMuted;
+      this.customAudio.play().then(() => {
+        this.isMusicPlaying = true;
+        this.notifyMusicListeners(true);
+      }).catch((err) => {
+        // Autoplay policy or user interaction pending — wait for user click without playing any fake synth
+        console.warn('Audio waiting for user gesture:', err);
+      });
+    } catch (err) {
+      console.warn('Audio play error:', err);
+    }
   }
 
-  public pauseSoundtrack() {
+    public pauseSoundtrack() {
     this.isMusicPlaying = false;
     this.notifyMusicListeners(false);
 
