@@ -81,16 +81,24 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
     if (isPlaying) {
       sound.pauseSoundtrack();
     } else {
-      sound.playTrackByIndex(currentTrackIndex);
+      sound.resumeSoundtrack();
     }
   };
 
   const handleSelectTrack = (index: number) => {
     sound.playNavClick();
+    if (index === currentTrackIndex) {
+      if (isPlaying) {
+        sound.pauseSoundtrack();
+      } else {
+        sound.resumeSoundtrack();
+      }
+      return;
+    }
     setCurrentTrackIndex(index);
     setCurrentTime(0);
     setProgress(0);
-    sound.playTrackByIndex(index);
+    sound.playTrackByIndex(index, true);
   };
 
   const handleNextTrack = () => {
