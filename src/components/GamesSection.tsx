@@ -35,7 +35,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#b76e79]/50',
     textColor: 'text-[#ffe4e9]',
     title: 'Note 01: That Radiant Cake Smile',
-    wish: 'Seeing you smile today while cutting your cake filled my heart with so much joy. May your days always be as sweet and bright as this moment! ≡ƒÄéΓ£¿',
+    wish: 'Seeing you smile today while cutting your cake filled my heart with so much joy. May your days always be as sweet and bright as this moment! 🎂✨',
     delay: 'animation-delay-0',
   },
   {
@@ -45,7 +45,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#6b3574]/50',
     textColor: 'text-[#f5e6fa]',
     title: 'Note 02: Childhood to Soul Connection',
-    wish: 'From knowing your name as children to traveling together as years go by... once we got connected, I felt like I had known you for ages. Your warmth is truly inspiring. ≡ƒî╕',
+    wish: 'From knowing your name as children to traveling together as years go by... once we got connected, I felt like I had known you for ages. Your warmth is truly inspiring. 🌸',
     delay: 'animation-delay-300',
   },
   {
@@ -55,7 +55,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#d49b6a]/50',
     textColor: 'text-[#fff8f0]',
     title: 'Note 03: Throwing Off The Shackles',
-    wish: 'Remember the moment we threw off the shackles? From then on, you held a special, irreplaceable place in my heart. ≡ƒòè∩╕ÅΓ£¿',
+    wish: 'Remember the moment we threw off the shackles? From then on, you held a special, irreplaceable place in my heart. 🕊️✨',
     delay: 'animation-delay-600',
   },
   {
@@ -65,7 +65,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#994d66]/50',
     textColor: 'text-[#ffeaf0]',
     title: 'Note 04: The Safe Haven Beyond Judgment',
-    wish: 'You gave me a space to be myself that a girl who never spoke to boys in school would never give blindly. You healed me with your words and actions. Valued more than my self-respect. ≡ƒÆû',
+    wish: 'You gave me a space to be myself that a girl who never spoke to boys in school would never give blindly. You healed me with your words and actions. Valued more than my self-respect. 💖',
     delay: 'animation-delay-900',
   },
   {
@@ -75,7 +75,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#4e3b75]/50',
     textColor: 'text-[#f1edfc]',
     title: 'Note 05: To Extraordinary Heights, Doctor Paapa!',
-    wish: 'I swear that your hard work and dedication will take you to great heights in your medical career and life. Keep shining bright, Doctor Paapa! ≡ƒ⌐║Γ¡É',
+    wish: 'I swear that your hard work and dedication will take you to great heights in your medical career and life. Keep shining bright, Doctor Paapa! 🩺⭐',
     delay: 'animation-delay-1200',
   },
   {
@@ -85,7 +85,7 @@ const INITIAL_BALLOONS: Omit<BalloonItem, 'popped'>[] = [
     glowColor: 'shadow-[#a86579]/50',
     textColor: 'text-[#fff2f5]',
     title: 'Note 06: Protected As My Own Eyes',
-    wish: 'I promise to stay connected beyond all restrictions, protect you as my own eyes, keep away difficulties, and always remain just a call away! ≡ƒô₧≡ƒ¢í∩╕Å',
+    wish: 'I promise to stay connected beyond all restrictions, protect you as my own eyes, keep away difficulties, and always remain just a call away! 📞🛡️',
     delay: 'animation-delay-1500',
   },
 ];
@@ -1068,7 +1068,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               <div className="mt-8 p-6 rounded-3xl bg-gradient-to-b from-amber-950/40 via-purple-950/40 to-black/60 border border-amber-300/40 text-center animate-fade-in">
                 <Trophy className="w-10 h-10 text-amber-300 mx-auto mb-2 animate-bounce" />
                 <h3 className="font-serif-display text-xl sm:text-2xl font-bold text-amber-200 mb-1">
-                  All 6 Birthday Wishes Unlocked! ≡ƒÅå
+                  All 6 Birthday Wishes Unlocked! 🏆
                 </h3>
                 <p className="text-xs sm:text-sm text-[#f7e7ce]/90 max-w-md mx-auto mb-4 font-light">
                   May each of these blessings follow you everywhere you walk this year, Meera!
@@ -1079,7 +1079,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                     onClick={onOpenSurprise}
                     className="px-6 py-2.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-900 font-serif-display font-semibold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
                   >
-                    <span>Blow Your Birthday Candles ≡ƒÄé</span>
+                    <span>Blow Your Birthday Candles 🎂</span>
                   </button>
                   <button
                     type="button"
@@ -1183,7 +1183,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                 <div className="flex items-center justify-between mb-1.5 sm:mb-2">
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-serif-display uppercase tracking-widest bg-[#ffdab9]/15 text-[#ffdab9] border border-[#ffdab9]/30 font-semibold">
-                      Story Unlocked ┬╖ {latestMatchedStory.phase}
+                      Story Unlocked · {latestMatchedStory.phase}
                     </span>
                     <span className="font-serif-display text-[11px] sm:text-xs text-[#fffdf9] font-medium">
                       {latestMatchedStory.name}
@@ -1246,10 +1246,10 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               <div className="mt-6 sm:mt-8 p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-amber-950/40 via-purple-950/50 to-black/70 border border-amber-300/40 text-center animate-fade-in max-w-lg mx-auto shadow-2xl">
                 <Award className="w-10 h-10 sm:w-12 sm:h-12 text-amber-300 mx-auto mb-2 animate-bounce" />
                 <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-serif-display uppercase tracking-widest bg-amber-400/20 text-amber-200 border border-amber-300/40 inline-block mb-1.5 sm:mb-2 font-semibold">
-                  Entire Journey Reunited Γ£¿
+                  Entire Journey Reunited ✨
                 </span>
                 <h3 className="font-serif-display text-xl sm:text-3xl font-bold text-amber-200 mb-1">
-                  Magnificent Memory, Doctor Paapa! ≡ƒ⌐║Γ£¿
+                  Magnificent Memory, Doctor Paapa! 🩺✨
                 </h3>
                 <p className="text-xs sm:text-sm text-[#f7e7ce]/90 mb-3 sm:mb-4 max-w-md mx-auto">
                   You solved all 6 matching pairs in <strong>{moves} moves</strong> ({gameTime}s) and unlocked every milestone from childhood to today's sacred promise!
@@ -1279,7 +1279,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                       onClick={onNavigateToLetter}
                       className="w-full sm:w-auto min-h-[44px] px-5 sm:px-6 py-2.5 rounded-2xl sm:rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-stone-950 font-serif-display font-semibold text-xs tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer"
                     >
-                      <span>Read The Full Letter ≡ƒÆî</span>
+                      <span>Read The Full Letter 💌</span>
                     </button>
                   )}
                   <button
@@ -1287,7 +1287,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
                     onClick={onOpenSurprise}
                     className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-2xl sm:rounded-full bg-white/15 hover:bg-white/20 text-xs text-[#fffdf9] font-serif-display transition-all cursor-pointer border border-white/15"
                   >
-                    <span>Cut Birthday Cake ≡ƒÄé</span>
+                    <span>Cut Birthday Cake 🎂</span>
                   </button>
                   <button
                     type="button"
@@ -1520,7 +1520,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
       {onNavigateToLetter && (
         <div className="mt-8 sm:mt-12 w-full text-center p-5 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#2f0c39]/90 via-[#210729]/95 to-[#16041c]/90 border border-[#ffdab9]/35 shadow-2xl">
           <span className="text-[10px] sm:text-xs uppercase tracking-widest text-[#ffdab9] font-semibold block mb-1">
-            Next Chapter in Your Birthday Journey Γ£ª
+            Next Chapter in Your Birthday Journey ✦
           </span>
           <h4 className="font-serif-display text-lg sm:text-2xl text-[#fffdf9] font-bold mb-1.5 sm:mb-2">
             Read The Complete Letter & 6-Phase Timeline
@@ -1537,7 +1537,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               }}
               className="w-full sm:w-auto min-h-[46px] px-6 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-gradient-to-r from-[#b76e79] via-[#c97b87] to-[#8d3d4b] hover:from-[#c57984] hover:to-[#9b4957] text-[#fffdf9] font-serif-display font-bold text-xs tracking-wider uppercase shadow-xl active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2 border border-[#ffdab9]/40"
             >
-              <span>Read Doctor Paapa's Letter ≡ƒÆî</span>
+              <span>Read Doctor Paapa's Letter 💌</span>
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
@@ -1549,7 +1549,7 @@ export const GamesSection: React.FC<GamesSectionProps> = ({ config, onOpenSurpri
               className="w-full sm:w-auto min-h-[46px] px-5 sm:px-6 py-3 rounded-2xl sm:rounded-full bg-white/10 hover:bg-white/15 border border-[#ffdab9]/30 text-[#ffdab9] text-xs font-serif-display font-semibold transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2"
             >
               <Cake className="w-4 h-4 text-[#ffdab9]" />
-              <span>Cut 3D Birthday Cake ≡ƒÄé</span>
+              <span>Cut 3D Birthday Cake 🎂</span>
             </button>
           </div>
         </div>
