@@ -37,6 +37,13 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [swipeNotice, setSwipeNotice] = useState<string | null>(null);
 
+  // Initialize playlist in sound system
+  useEffect(() => {
+    if (config.soundtracks && config.soundtracks.length > 0) {
+      sound.setPlaylist(config.soundtracks);
+    }
+  }, [config.soundtracks]);
+
   // Sync music state with the sound system
   useEffect(() => {
     const unsubscribe = sound.subscribeToMusic((playing) => {
@@ -47,7 +54,12 @@ export default function App() {
 
   const handleEnvelopeComplete = () => {
     setIsEnvelopeOpen(true);
-    sound.playSoundtrack(config.song.source);
+    if (config.soundtracks && config.soundtracks.length > 0) {
+      sound.setPlaylist(config.soundtracks);
+      sound.playTrackByIndex(0);
+    } else {
+      sound.playSoundtrack(config.song.source);
+    }
   };
 
   const handleToggleMute = () => {
@@ -56,7 +68,7 @@ export default function App() {
   };
 
   const handleToggleMusic = () => {
-    sound.toggleSoundtrack(config.song.source);
+    sound.toggleSoundtrack();
   };
 
   // ==========================================
