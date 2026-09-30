@@ -116,7 +116,7 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
         <h2 className="font-script text-3xl sm:text-5xl md:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-[#fffdf9] via-[#ffdab9] to-[#f7e7ce] font-semibold py-1">
           A Letter For {config.name}
         </h2>
-        <p className="font-serif-display text-xs sm:text-sm text-[#e6e6fa]/75 max-w-lg mx-auto mt-1 italic px-2">
+        <p className="font-serif-display text-sm sm:text-base text-[#e6e6fa]/85 max-w-lg mx-auto mt-1.5 italic px-2">
           Dedicated to Doctor Paapa: our journey from quiet school childhood to today's sacred promise.
         </p>
 
@@ -212,7 +212,7 @@ export const LetterSection: React.FC<LetterSectionProps> = ({
             </div>
 
             {/* Typewritten Message Body with optimal measure and line-height */}
-            <div className="font-serif-display text-sm sm:text-lg md:text-xl leading-[1.8] text-[#2c0a32]/95 whitespace-pre-line tracking-normal min-h-[200px] sm:min-h-[240px] font-normal">
+            <div className="font-serif-display text-base sm:text-lg md:text-xl leading-[1.85] text-[#2c0a32]/95 whitespace-pre-line tracking-normal min-h-[200px] sm:min-h-[240px] font-normal">
               {fullText.slice(0, displayedLength)}
               {!isTypingComplete && (
                 <span className="inline-block w-2 sm:w-2.5 h-5 sm:h-6 bg-[#b76e79] ml-1 sm:ml-1.5 animate-cursor align-middle" />
