@@ -17,6 +17,7 @@
     letter-spacing: 0.01em;
     line-height: 1.65;
     font-size: 16px; /* Prevents iOS auto-zoom on inputs */
+    /* Prevent unwanted mobile text inflation on iOS & Chromium while keeping text crisp */
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     text-size-adjust: 100%;
