@@ -224,9 +224,11 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                 {currentTrack.artist}
               </p>
 
-              <p className="text-xs text-[#e6e6fa]/70 font-sans mt-1.5 sm:mt-2 font-light">
-                {currentTrack.description}
-              </p>
+              <div className="mt-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                <p className="text-xs sm:text-[13px] text-[#f7e7ce] font-serif-display leading-relaxed">
+                  {currentTrack.description}
+                </p>
+              </div>
             </div>
 
             {/* Equalizer Waveform Visualization */}
@@ -390,7 +392,7 @@ export const MusicSection: React.FC<MusicSectionProps> = ({
                   </span>
                 </div>
 
-                <p className="text-xs text-[#e6e6fa]/70 font-sans italic mb-3 line-clamp-2">
+                <p className="text-xs text-[#f7e7ce]/90 font-serif-display italic my-2.5 leading-relaxed">
                   "{track.description}"
                 </p>
 
